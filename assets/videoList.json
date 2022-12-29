@@ -2,7 +2,9 @@
     "videoList": [
         {
             "videoId": "0",
-            "videoUrl": "https://media.istockphoto.com/id/1341017374/video/generic-3d-car-crash-test-with-crashtest-dummy-car-destruction-realistic-4k-animation.mp4?s=mp4-640x640-is&k=20&c=QrfU-5zetLu1lvCqO7LZBCOG1LfueLClwa7iUIuQ5zY="
+            "videoUrl": "https://media.istockphoto.com/id/1341017374/video/generic-3d-car-crash-test-with-crashtest-dummy-car-destruction-realistic-4k-animation.mp4?s=mp4-640x640-is&k=20&c=QrfU-5zetLu1lvCqO7LZBCOG1LfueLClwa7iUIuQ5zY=",
+            "resolution":{"width":"","height":""},
+            "rotate":""
         },
         {
             "videoId": "1",
@@ -10,7 +12,7 @@
         },
         {
             "videoId": "2",
-            "videoUrl": "https://media.istockphoto.com/id/1361282852/video/check-mark-symbols-success-accepted-4k-video-with-alpha-channel-check-mark-on-transparent.mp4?s=mp4-640x640-is&k=20&c=0ZQAtSqbHQZpOaI0tNzAmyiSRdfO3vM1FpCsRWpBNis="
+            "videoUrl": "https://static.videezy.com/system/resources/previews/000/055/128/original/Vertical-walk-to-camera-walkway-beach2-Larn-Island_1.mp4"
         }
     ]
 }
