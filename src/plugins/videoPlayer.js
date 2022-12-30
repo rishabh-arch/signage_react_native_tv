@@ -10,9 +10,9 @@ import React from "react";
 import { Video } from "expo-av";
 import * as Progress from "react-native-progress";
 import Home from "../screens/Home";
-
+import Slideshow from 'react-native-image-slider-show';
 // const { height, width } = useWindowDimensions();
-const VideoPlayer = ({navigation}) => {
+const VideoPlayer = ({ navigation }) => {
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
   const secondVideo = React.useRef(null);
@@ -59,14 +59,19 @@ const VideoPlayer = ({navigation}) => {
 
   React.useEffect(() => {
     if (status?.didJustFinish) {
-      setIndex((idx) => (idx == (state.wholeResult.videoList).length-1 ? 0 : idx + 1));
+      setIndex((idx) =>
+        idx == state.wholeResult.videoList.length - 1 ? 0 : idx + 1
+      );
     }
   }, [status?.didJustFinish]);
-
+  const image = { uri: "https://reactjs.org/logo-og.png" };
+  const runImage = () => (
+    <ImageBackground source={image} resizeMode="stretch" style={styles.image} />
+  );
+  
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        
         onLongPress={() => {
           navigation.navigate("Home");
           // console.log("Long Press");
@@ -74,24 +79,19 @@ const VideoPlayer = ({navigation}) => {
         delayLongPress={3000}
       >
         {!isLoaded ? (
-          state.wholeResult.videoList[index].format == "image" ? (
-               <ImageBackground source={image} resizeMode="cover" style={styles.image}>
-               <Text style={styles.text}>Inside</Text>
-            //  </ImageBackground>
-          ) : (
-          <Video
-            ref={video}
-            style={styles.video}
-            source={{
-              uri: state.wholeResult.videoList[index].videoUrl,
-            }}
-            useNativeControls={false}
-            shouldPlay
-            resizeMode="stretch"
-            // isLooping
-            onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-          />
-          )
+            <Video
+              ref={video}
+              style={styles.video}
+              source={{
+                uri: state.wholeResult.videoList[index].videoUrl,
+              }}
+              useNativeControls={false}
+              shouldPlay
+              resizeMode="stretch"
+              // isLooping
+              onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+            />
+          
         ) : (
           <Progress.Circle
             size={200}
@@ -109,6 +109,13 @@ const VideoPlayer = ({navigation}) => {
 export default VideoPlayer;
 
 const styles = StyleSheet.create({
+  image: {
+    // flex: 1,
+    height: Dimensions.get("window").height,
+    width: Dimensions.get("window").width,
+    // transform: [{ rotate: "90deg" }],
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F0BD30",

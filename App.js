@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Dimensions, Animated } from "react-native";
 import CustomComponent from "./src/screens/CustomComponent";
 import VideoPlayer from "./src/plugins/videoPlayer";
+import ImagePlayer from "./src/plugins/ImagePlayer";
 import QrCodePage from "./src/screens/QrCodePage";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -34,9 +35,14 @@ export default function App() {
       >
         <Stack.Screen
           name="VideoPlayer"
-          component={VideoPlayer}
+          component={ImagePlayer}
           options={{ headerShown: false }}
         />
+        {/* <Stack.Screen
+          name="VideoPlayer"
+          component={VideoPlayer}
+          options={{ headerShown: false }}
+        /> */}
         <Stack.Screen
           name="Home"
           component={Home}

@@ -1,0 +1,23 @@
+{
+    "format": "image",
+    "imageList": [
+        {
+            "imageId": "0",
+            "imageUrl": "https://www.pixelstalk.net/wp-content/uploads/2016/08/Best-Pictures-HD-Nature-Download.jpg",
+            "resolution":{"width":"","height":""},
+            "rotate":""
+        },
+        {
+            "imageId": "1",
+            "imageUrl": "http://www.thewowstyle.com/wp-content/uploads/2015/01/nature-images.jpg",
+            "resolution":{"width":"","height":""},
+            "rotate":""
+        },
+        {
+            "imageId": "2",
+            "imageUrl": "https://wallpapercave.com/wp/CpRGNUC.jpg",
+            "resolution":{"width":"","height":""},
+            "rotate":""
+        }
+    ]
+}
