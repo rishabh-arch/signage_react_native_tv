@@ -4,6 +4,7 @@ import {
   View,
   Dimensions,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import React from "react";
 import { Video } from "expo-av";
@@ -58,7 +59,7 @@ const VideoPlayer = ({navigation}) => {
 
   React.useEffect(() => {
     if (status?.didJustFinish) {
-      setIndex((idx) => (idx == 2 ? 0 : idx + 1));
+      setIndex((idx) => (idx == (state.wholeResult.videoList).length-1 ? 0 : idx + 1));
     }
   }, [status?.didJustFinish]);
 
@@ -73,6 +74,11 @@ const VideoPlayer = ({navigation}) => {
         delayLongPress={3000}
       >
         {!isLoaded ? (
+          state.wholeResult.videoList[index].format == "image" ? (
+               <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+               <Text style={styles.text}>Inside</Text>
+            //  </ImageBackground>
+          ) : (
           <Video
             ref={video}
             style={styles.video}
@@ -85,6 +91,7 @@ const VideoPlayer = ({navigation}) => {
             // isLooping
             onPlaybackStatusUpdate={(status) => setStatus(() => status)}
           />
+          )
         ) : (
           <Progress.Circle
             size={200}

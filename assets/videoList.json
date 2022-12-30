@@ -4,15 +4,22 @@
             "videoId": "0",
             "videoUrl": "https://media.istockphoto.com/id/1341017374/video/generic-3d-car-crash-test-with-crashtest-dummy-car-destruction-realistic-4k-animation.mp4?s=mp4-640x640-is&k=20&c=QrfU-5zetLu1lvCqO7LZBCOG1LfueLClwa7iUIuQ5zY=",
             "resolution":{"width":"","height":""},
-            "rotate":""
+            "rotate":"",
+            "format":"video"
         },
         {
             "videoId": "1",
-            "videoUrl": "https://media.istockphoto.com/id/1353614588/video/water-sample-hand-collects-water-to-explore-water-purity-analysis-environment-ecology-water.mp4?s=mp4-640x640-is&k=20&c=EBuJcbd9iFG3SFNgeR7vDPPfmNxC36ZLIowQJKGITIc="
+            "videoUrl": "https://media.istockphoto.com/id/1353614588/video/water-sample-hand-collects-water-to-explore-water-purity-analysis-environment-ecology-water.mp4?s=mp4-640x640-is&k=20&c=EBuJcbd9iFG3SFNgeR7vDPPfmNxC36ZLIowQJKGITIc=",
+            "resolution":{"width":"","height":""},
+            "rotate":"",
+            "format":"video"
         },
         {
             "videoId": "2",
-            "videoUrl": "https://static.videezy.com/system/resources/previews/000/055/128/original/Vertical-walk-to-camera-walkway-beach2-Larn-Island_1.mp4"
+            "videoUrl": "https://static.videezy.com/system/resources/previews/000/055/128/original/Vertical-walk-to-camera-walkway-beach2-Larn-Island_1.mp4",
+            "resolution":{"width":"","height":""},
+            "rotate":"",
+            "format":"video"
         }
     ]
 }
