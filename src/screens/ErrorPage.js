@@ -5,34 +5,44 @@ import {
   TouchableOpacity,
   Button,
   Pressable,
+  Dimensions,
 } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import React from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Home = () => {
+const ErrorPage = (props) => {
   return (
     <View style={styles.container}>
       <Pressable
         onPressIn={() => {
-          AsyncStorage.removeItem("isAuth");
+
           alert("Restart the app to login again");
         }}
       >
-        <Text style={styles.signup}>LOG-OUT!</Text>
+        <Text style={styles.signup}>
+          <Icon name="exclamation-triangle" size={100} color="#fff" />
+          {props.hello}
+        </Text>
+        <Text style={styles.signup}>
+            Oops! May be Our server is can't able to fetch your Device. Please try again later. 
+            </Text>
       </Pressable>
     </View>
   );
 };
 
-export default Home;
+export default ErrorPage;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0BD30",
+    backgroundColor: "#B00404",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+    flexDirection: "column",
+    // width: Dimensions.get("window").width,
+    // height: Dimensions.get("window").height,
   },
   background: {
     width: "100%",
@@ -50,15 +60,21 @@ const styles = StyleSheet.create({
     marginLeft: "20%",
   },
   signup: {
-    backgroundColor: "white",
-    color: "#F0BD30",
-    width: "75%",
+    // height: Dimensions.get("window").height,
+    // width: Dimensions.get("window").width,
+
+    color: "#fff",
+    // width: "75%",
     borderRadius: 25,
     textAlign: "center",
     fontWeight: "bold",
+    // flex:1,
+    flexWrap: "wrap",
+    // wordWrap: "break-word",
     //   marginLeft: '11%',
     padding: "2%",
-    fontSize: 27,
+    fontSize: Dimensions.get("window").width / 40,
+    // width: 410,
     //   marginTop: '70%'
   },
   login: {
