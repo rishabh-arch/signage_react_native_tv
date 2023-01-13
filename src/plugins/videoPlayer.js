@@ -10,48 +10,48 @@ import React from "react";
 import { Video } from "expo-av";
 import * as Progress from "react-native-progress";
 import { androidId } from "expo-application";
-
-const VideoPlayer = ({ navigation }) => {
+import { useNavigation } from "@react-navigation/native";
+const VideoPlayer = ({ wholeResult }) => {
+  const navigation = useNavigation();
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
   const [index, setIndex] = React.useState(0);
   const [state, setState] = React.useState({ wholeResult: "" });
   const [isLoaded, setLoaded] = React.useState(true);
 
-  
-  React.useEffect((props) => {
-    const APP = async () =>
+  // React.useEffect(() => {
+  //   const APP = async () =>
 
-      await fetch("http://192.168.0.104:3000/isAuth?UID="+ androidId, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-  
-      })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (result) {
-          // console.log("-------- response ------- " + JSON.stringify(result.json));
-          setState({ wholeResult: result.json });
-          setLoaded(false);
-        })
-        .catch(function (error) {
-          navigation.navigate("Home");
-        });
-    APP();
-  }, [0]);
+  //     await fetch("http://192.168.0.103:5000/isAuth?UID="+ androidId, {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
 
-  React.useEffect(() => {
-    if (status?.didJustFinish) {
-      setIndex((idx) =>
-        idx == state.wholeResult.videoList.length - 1 ? 0 : idx + 1
-      );
-    }
-  }, [status?.didJustFinish]);
-  
+  //     })
+  //       .then(function (response) {
+  //         return response.json();
+  //       })
+  //       .then(function (result) {
+  //         // console.log("-------- response ------- " + JSON.stringify(result.json));
+  //         setState({ wholeResult: result.json });
+  //         setLoaded(false);
+  //       })
+  //       .catch(function (error) {
+  //         navigation.navigate("Home");
+  //       });
+  //   APP();
+  // }, [0]);
+
+  // React.useEffect(() => {
+  //   if (status?.didJustFinish) {
+  //     setIndex((idx) =>
+  //       idx == wholeResult.videoList.length - 1 ? 0 : idx + 1
+  //     );
+  //   }
+  // }, [status?.didJustFinish]);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -60,21 +60,22 @@ const VideoPlayer = ({ navigation }) => {
         }}
         delayLongPress={3000}
       >
-        {!isLoaded ? (
-            <Video
-              ref={video}
-              style={styles.video}
-              source={{
-                uri: state.wholeResult.videoList[index].videoUrl,
-              }}
-              useNativeControls={false}
-              shouldPlay
-              resizeMode="stretch"
-              // isLooping
-              onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-            />
-          
-        ) : (
+        {/* {!isLoaded ? ( */}
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{
+            // uri: wholeResult.videoList[index].videoUrl,
+            uri: wholeResult,
+          }}
+          useNativeControls={false}
+          shouldPlay
+          resizeMode="stretch"
+          isLooping
+          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+        />
+
+        {/* ) : (
           <Progress.Circle
             size={200}
             endAngle={0.7}
@@ -82,7 +83,7 @@ const VideoPlayer = ({ navigation }) => {
             indeterminate={true}
             color={"white"}
           />
-        )}
+        )} */}
       </TouchableOpacity>
     </View>
   );

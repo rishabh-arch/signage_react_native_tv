@@ -10,7 +10,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import React from "react";
 
-const ErrorPage = (props) => {
+const ErrorPage = () => {
   return (
     <View style={styles.container}>
       <Pressable
@@ -21,7 +21,6 @@ const ErrorPage = (props) => {
       >
         <Text style={styles.signup}>
           <Icon name="exclamation-triangle" size={100} color="#fff" />
-          {props.hello}
         </Text>
         <Text style={styles.signup}>
             Oops! May be Our server is can't able to fetch your Device. Please try again later. 
