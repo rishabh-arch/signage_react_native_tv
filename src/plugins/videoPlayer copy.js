@@ -12,15 +12,46 @@ import * as Progress from "react-native-progress";
 import { androidId } from "expo-application";
 import { useNavigation } from "@react-navigation/native";
 const VideoPlayer = ({ wholeResult }) => {
-  const [progress, setProgress] = React.useState(false);
-  React.useEffect(() => {
-    if(wholeResult !== undefined){
-      setProgress(true);
-    }
-  }, [wholeResult])
-  
-  console.log("wholeResult ", wholeResult);
   const navigation = useNavigation();
+  const video = React.useRef(null);
+  const [status, setStatus] = React.useState({});
+  const [index, setIndex] = React.useState(0);
+  const [state, setState] = React.useState({ wholeResult: "" });
+  const [isLoaded, setLoaded] = React.useState(true);
+
+  // React.useEffect(() => {
+  //   const APP = async () =>
+
+  //     await fetch("http://192.168.0.103:5000/isAuth?UID="+ androidId, {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+
+  //     })
+  //       .then(function (response) {
+  //         return response.json();
+  //       })
+  //       .then(function (result) {
+  //         // console.log("-------- response ------- " + JSON.stringify(result.json));
+  //         setState({ wholeResult: result.json });
+  //         setLoaded(false);
+  //       })
+  //       .catch(function (error) {
+  //         navigation.navigate("Home");
+  //       });
+  //   APP();
+  // }, [0]);
+
+  // React.useEffect(() => {
+  //   if (status?.didJustFinish) {
+  //     setIndex((idx) =>
+  //       idx == wholeResult.videoList.length - 1 ? 0 : idx + 1
+  //     );
+  //   }
+  // }, [status?.didJustFinish]);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -29,16 +60,30 @@ const VideoPlayer = ({ wholeResult }) => {
         }}
         delayLongPress={3000}
       >
-       {progress? <Video
+        {/* {!isLoaded ? ( */}
+        <Video
+          ref={video}
           style={styles.video}
           source={{
+            // uri: wholeResult.videoList[index].videoUrl,
             uri: wholeResult,
           }}
           useNativeControls={false}
           shouldPlay
           resizeMode="stretch"
           isLooping
-        />:null}
+          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+        />
+
+        {/* ) : (
+          <Progress.Circle
+            size={200}
+            endAngle={0.7}
+            borderWidth={10}
+            indeterminate={true}
+            color={"white"}
+          />
+        )} */}
       </TouchableOpacity>
     </View>
   );

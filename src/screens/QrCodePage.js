@@ -6,7 +6,7 @@ import * as Application from "expo-application";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { androidId } from "expo-application";
-
+import * as Device from 'expo-device';
 const QrCodePage = () => {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
@@ -15,7 +15,7 @@ const QrCodePage = () => {
       const response = await axios
         .post(
           "http://192.168.0.103:5000/api/Signage/NativeTV/checkAuthorization",
-          { UID: androidId }
+          { UID: androidId,android:Device }
         )
         .then(async (res) => {
           if (!res.msgError) {
