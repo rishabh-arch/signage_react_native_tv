@@ -8,14 +8,14 @@ import {
 } from "react-native";
 import React from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Updates from 'expo-updates';
 
 const Home = () => {
   return (
     <View style={styles.container}>
       <Pressable
         onPressIn={() => {
-          AsyncStorage.removeItem("isAuth");
-          alert("Restart the app to login again");
+          Updates.reloadAsync();
         }}
       >
         <Text style={styles.signup}>LOG-OUT!</Text>

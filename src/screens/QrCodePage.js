@@ -25,7 +25,7 @@ const QrCodePage = () => {
           } else console.log("user is not ok");
           return res;
         })
-        .catch((error) => console.log("error no server ", error)).done();
+        .catch((error) => console.log("error no server ", error));
       // console.log("response ", response.data.userIsOK);
     }, 3000);
     function stop() {

@@ -5,71 +5,70 @@ import {
   Dimensions,
   TouchableOpacity,
   ImageBackground,
+  Image,
 } from "react-native";
 import React from "react";
 import { Video } from "expo-av";
 import * as Progress from "react-native-progress";
 import Home from "../screens/Home";
+import ScrollingBackground from "react-native-scrolling-images";
+import { useNavigation } from "@react-navigation/native";
+
 // const { height, width } = useWindowDimensions();
-const ImagePlayer = ({ navigation }) => {
-  const video = React.useRef(null);
+const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
   const [status, setStatus] = React.useState({});
-  const secondVideo = React.useRef(null);
   const [index, setIndex] = React.useState(0);
   const [state, setState] = React.useState({ wholeResult: "" });
   const [isLoaded, setLoaded] = React.useState(true);
-
-  var url =
-    "https://rishabh-arch.github.io/signage_react_native_tv/assets/imageList.json";
-
+  const [progress, setProgress] = React.useState(false);
+  const [Rotation, setRotation] = React.useState("0deg");
   React.useEffect(() => {
-    const APP = async () =>
-      await fetch(url, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (result) {
-          setState({ wholeResult: result });
-          setLoaded(false);
-        })
-        .catch(function (error) {
-          console.log("-------- error ------- " + error);
-          alert("result:" + error);
-        });
-    APP();
-  }, [0]);
-  const delay = 10000;
-  React.useEffect(() => {
-    setTimeout(
-      () => setIndex((prevIndex) => (prevIndex === 2 ? 0 : prevIndex + 1)),
-      delay
-    );
+    if (wholeResult !== undefined) {
+      setProgress(true);
+      if (FetchedUrl.Orientation == "Landscape") {
+        setRotation("0deg");
+      } else {
+        setRotation("270deg");
+      }
+    }
+  }, []);
 
-    return () => {};
-  }, [index]);
-
-  // add random images url
+  const delay = 15000;
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
         onLongPress={() => {
           navigation.navigate("Home");
-          // console.log("Long Press");
         }}
         delayLongPress={3000}
       >
-        {!isLoaded ? (
+        {progress &&
+        wholeResult[index] !== "" &&
+        wholeResult[index] !== undefined ? (
           <ImageBackground
-            source={{ uri: state.wholeResult.imageList[index].imageUrl }}
-            resizeMode="stretch"
-            style={styles.image}
+            fadeDuration={0}
+            source={{
+              uri:
+                wholeResult.length == 1 ? wholeResult[0] : wholeResult[index],
+            }}
+            onLoadEnd={() => {
+              setTimeout(
+                () =>
+                  setIndex((prevIndex) =>
+                    prevIndex === wholeResult.length - 1 ? 0 : prevIndex + 1
+                  ),
+                delay
+              );
+            }}
+            resizeMode="contain"
+            style={{
+              width: Dimensions.get("window").width,
+              height: Dimensions.get("window").width,
+              transform: [{ rotate: Rotation }],
+              justifyContent: "center",
+            }}
           />
         ) : (
           <Progress.Circle
@@ -88,18 +87,15 @@ const ImagePlayer = ({ navigation }) => {
 export default ImagePlayer;
 
 const styles = StyleSheet.create({
-  image: {
-    // flex: 1,
-    height: Dimensions.get("window").height,
-    width: Dimensions.get("window").width,
-    // transform: [{ rotate: "90deg" }],
-    justifyContent: "center",
-  },
+
   container: {
     flex: 1,
-    backgroundColor: "#F0BD30",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+  },
+  scrollingBackground: {
+    backgroundColor: "#0B7483",
   },
 });

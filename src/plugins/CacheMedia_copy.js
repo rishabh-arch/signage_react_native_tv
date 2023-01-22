@@ -1,11 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 const CacheMedia_copy = async (url, setProgress, next) => {
-  console.log("url ", url);
+  // console.log("url ", url);
   const fileName = url.split("/").pop();
 
   const FileStatus = await AsyncStorage.getItem(fileName)
-  .then((res) => {console.log("res ", res); return res})
+  .then((res) => res)
   .catch((err) => {
     console.log("err ", err);
   });
@@ -17,7 +17,7 @@ const CacheMedia_copy = async (url, setProgress, next) => {
       FileSystem.documentDirectory + fileName,
       { idempotent: true }
     );
-    console.log("deletePrevious ", deletePrevious);
+    // console.log("deletePrevious ", deletePrevious);
   }
 
   const callback = (downloadProgress) => {
@@ -29,7 +29,7 @@ const CacheMedia_copy = async (url, setProgress, next) => {
 
   const downloadResumable = FileSystem.createDownloadResumable(
     url,
-    FileSystem.documentDirectory + fileName,
+    FileSystem.documentDirectory + fileName ,
     {},
     callback
   );
@@ -39,7 +39,7 @@ const CacheMedia_copy = async (url, setProgress, next) => {
   );
 
   if (!fileInfo.exists) {
-    console.log("file is not exist ", fileInfo);
+    // console.log("file is not exist ", fileInfo);
     try {
      const {uri} = await AsyncStorage.setItem(fileName, "Cancel")
         .then(async () => await downloadResumable.downloadAsync())
@@ -49,14 +49,14 @@ const CacheMedia_copy = async (url, setProgress, next) => {
           return uri;
         })
         .then(async (uri) => {
-          console.log("__________URI________", uri.uri);
+          // console.log("__________URI________", uri.uri);
           next(uri.uri);
         });
     } catch (e) {
       console.error(e);
     }
   } else {
-    console.log("Video is cached locally. Skipping download.");
+    // console.log("Video is cached locally. Skipping download.");
     setProgress(1);
     next(fileInfo.uri);
   }

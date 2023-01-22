@@ -5,41 +5,86 @@ import {
   Dimensions,
   TouchableOpacity,
   ImageBackground,
+  Alert,
+  Button,
 } from "react-native";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { Video } from "expo-av";
-import * as Progress from "react-native-progress";
-import { androidId } from "expo-application";
 import { useNavigation } from "@react-navigation/native";
-const VideoPlayer = ({ wholeResult }) => {
+
+const VideoPlayer = ({ wholeResult,FetchedUrl }) => {
+  const videoRef = React.useRef(null);
+  const [status, setStatus] = React.useState({});
+  const [index, setIndex] = React.useState(0);
   const [progress, setProgress] = React.useState(false);
+  const [isLoaded, setLoaded] = React.useState(true);
+
   React.useEffect(() => {
-    if(wholeResult !== undefined){
+    if (wholeResult !== undefined) {
       setProgress(true);
     }
-  }, [wholeResult])
-  
-  console.log("wholeResult ", wholeResult);
+  }, []);
+  React.useEffect(() => {
+    if (status?.didJustFinish) {
+      setIndex((idx) => (idx == wholeResult.length - 1 ? 0 : idx + 1));
+    }
+  }, [status]);
+
+  var incr = (function () {
+    var i = 0;
+
+    return function () {
+      if (i > 2) {
+        i = 0;
+      }
+      return i++;
+    };
+  })();
+  const checkRef = () => {
+    // if (videoRef.current) {
+    setIndex((idx) => (idx == wholeResult.length - 1 ? 0 : idx + 1));
+    videoRef.current.replayAsync();
+    // }
+  };
+  const videofn = () => (
+    <Video
+      ref={videoRef}
+      style={styles.video}
+      source={{
+        uri: wholeResult[incr()],
+      }}
+      useNativeControls={false}
+      shouldPlay
+      resizeMode="stretch"
+      isLooping={true}
+    />
+  );
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onLongPress={() => {
-          navigation.navigate("Home");
-        }}
-        delayLongPress={3000}
-      >
-       {progress? <Video
-          style={styles.video}
-          source={{
-            uri: wholeResult,
-          }}
-          useNativeControls={false}
-          shouldPlay
-          resizeMode="stretch"
-          isLooping
-        />:null}
-      </TouchableOpacity>
+      {progress &&
+      wholeResult[index] !== "" &&
+      wholeResult[index] !== undefined ? (
+          <Video
+           key={index}
+           ref={videoRef}
+           style={styles.video}
+           source={{
+             uri: wholeResult[0],
+           }}
+           onError={(error) => {
+              alert(error);
+            }}
+           useNativeControls={false}
+           shouldPlay
+           resizeMode="contain"
+           isLooping={true}
+           isMuted={FetchedUrl.Audio=="Mute"?true:false}
+           rotation={
+            FetchedUrl.Orientation == "Landscape"?0:270
+           }
+         />
+      ) : null}
     </View>
   );
 };
@@ -47,33 +92,19 @@ const VideoPlayer = ({ wholeResult }) => {
 export default VideoPlayer;
 
 const styles = StyleSheet.create({
-  image: {
-    // flex: 1,
-    height: Dimensions.get("window").height,
-    width: Dimensions.get("window").width,
-    // transform: [{ rotate: "90deg" }],
-    justifyContent: "center",
-  },
   container: {
     flex: 1,
-    backgroundColor: "#F0BD30",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+
   },
   video: {
-    position: "relative",
-
-    height: Dimensions.get("window").height,
+    position: "absolute",
     width: Dimensions.get("window").width,
-    // width: Dimensions.get('window').height,
-    // height: Dimensions.get('window').width,
-
+    height: Dimensions.get('window').width,
     flex: 1,
-    backgroundColor: "#000",
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    transform: [{ rotate: "0deg" }],
     alignSelf: "stretch",
   },
 });

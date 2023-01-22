@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "videoplayer_app2",
+    "name": "videoplayer_app_27",
     "slug": "videoplayer_app2",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "landscape",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -34,6 +34,15 @@
       "eas": {
         "projectId": "e0f22c2e-5d6d-4709-86a3-4f8c21271edc"
       }
-    }
+
+    },
+    "plugins": [
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
+        }
+      ]
+    ]
   }
 }

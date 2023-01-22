@@ -17,7 +17,6 @@ const VideoPlayer = ({ wholeResult }) => {
   const [status, setStatus] = React.useState({});
   const [index, setIndex] = React.useState(0);
   const [state, setState] = React.useState({ wholeResult: "" });
-  const [isLoaded, setLoaded] = React.useState(true);
 
   // React.useEffect(() => {
   //   const APP = async () =>
