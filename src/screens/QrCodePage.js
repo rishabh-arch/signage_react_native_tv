@@ -14,7 +14,7 @@ const QrCodePage = () => {
     const t = setInterval(async () => {
       const response = await axios
         .post(
-          "http://192.168.0.103:5000/api/Signage/NativeTV/checkAuthorization",
+          "http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization",
           { UID: androidId,android:Device }
         )
         .then(async (res) => {

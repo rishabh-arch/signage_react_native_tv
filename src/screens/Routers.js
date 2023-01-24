@@ -14,11 +14,16 @@ import * as Progress from "react-native-progress";
 import { androidId } from "expo-application";
 import axios from "axios";
 import CacheMedia from "../plugins/CacheMedia";
-import CacheMedia_copy from "../plugins/CacheMedia_copy";
+import {
+  CacheMedia_copy,
+  cleanMemory,
+  megabytesToBytes,
+} from "../plugins/CacheMedia_copy";
 import CheckNetworkStatus from "../plugins/CheckNetworkStatus";
 import WebMedia from "../plugins/WebMedia";
 import WebBrowserYoutube from "../plugins/WebBrowserYoutube";
 import WebVideoPlayer from "../plugins/WebVideoPlayer";
+import * as FileSystem from "expo-file-system";
 
 const Routers = () => {
   const [TypeofMedia, setTypeofMedia] = React.useState("whoARE TYOU");
@@ -27,13 +32,21 @@ const Routers = () => {
   const [isAuth, setIsAuth] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const [VideoName, setVideoName] = React.useState("Loading... Please Wait");
+  const [downloaded, setDownloaded] = React.useState(false);
 
+  //Dear Developer, Please Understand Our Situation, Don't Steal Our Code and don't make a crack version of our app
+  //We are not a big company, we are just a small company
+  //Please don't create a problem for us
+  // Love from Signage Team
   useEffect(() => {
+
     const APP = async () => {
+      const FreeSpace = await FileSystem.getFreeDiskStorageAsync();
+      console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
       setIsLoaded(false);
       const response = await axios
         .post(
-          "http://192.168.0.103:5000/api/Signage/NativeTV/checkAuthorization",
+          "http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization",
           { UID: androidId }
         )
         .then(async (Fetched_Data) => {
@@ -59,7 +72,7 @@ const Routers = () => {
             setIsAuth(false);
             setProgress(1);
             setState({
-              FetchedUrl: { Orientation: "landscape", Audio: "Mute" },
+              FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
               wholeResult:
                 "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
             });
@@ -70,49 +83,49 @@ const Routers = () => {
             if (result[0].data.msg.MediaInfo.MediaUrl[0] === undefined) {
               setProgress(1);
               setState({
-                FetchedUrl: { Orientation: "landscape", Audio: "Mute" },
+                FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
                 wholeResult:
                   "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
               });
               setTypeofMedia("VideoPlayer");
               return "VideoPlayer";
             } else {
-              const FetchedUrl = result[0].data.msg.MediaInfo;
-              const wholeResult = [];
+              if (FreeSpace > megabytesToBytes(500)) {
+                const FetchedUrl = result[0].data.msg.MediaInfo;
+                const wholeResult = [];
 
-              if (FetchedUrl.TypeOfMedia !== "youtube")
-                for (let i = 0; i < FetchedUrl.MediaUrl.length; i++) {
-                  setVideoName(FetchedUrl.MediaUrl[i].split("/").pop());
-                  const cachingMedia = await CacheMedia_copy(
-                    FetchedUrl.MediaUrl[i],
-                    setProgress,
-                    async (uri) => {
-                      wholeResult.push(uri);
-                      const StringUri = wholeResult.toString();
-                      setState({
-                        FetchedUrl: FetchedUrl,
-                        wholeResult: wholeResult,
-                      });
-                      const storingURI = await AsyncStorage.setItem(
-                        "StoredURI",
-                        `${StringUri}?TypeOfMedia=${FetchedUrl.TypeOfMedia}&Orientation=${FetchedUrl.Orientation}&Audio=${FetchedUrl.Audio}`
-                      );
-                    }
-                  );
+                if (FetchedUrl.TypeOfMedia !== "youtube") {
+                  for (let i = 0; i < FetchedUrl.MediaUrl.length; i++) {
+                    const cachingMedia = await CacheMedia_copy(
+                      FetchedUrl.MediaUrl[i],
+                      setProgress,
+                      async (uri) => {
+                        wholeResult.push(uri);
+                        const StringUri = wholeResult.toString();
+                        setState({
+                          FetchedUrl: FetchedUrl,
+                          wholeResult: wholeResult,
+                        });
+                        setVideoName(uri.split("/").pop());
+                        const storingURI = await AsyncStorage.setItem(
+                          "StoredURI",
+                          `${StringUri}?TypeOfMedia=${FetchedUrl.TypeOfMedia}&Orientation=${FetchedUrl.Orientation}&Audio=${FetchedUrl.Audio}`
+                        );
+                      }
+                    );
+                  }
+                  setDownloaded(true);
+                } else {
+                  wholeResult.push(FetchedUrl.MediaUrl[0]);
+                  setState({
+                    FetchedUrl: FetchedUrl,
+                    wholeResult: wholeResult,
+                  });
+                  setProgress(1);
                 }
-              else {
-                wholeResult.push(FetchedUrl.MediaUrl[0]);
-                setState({
-                  FetchedUrl: FetchedUrl,
-                  wholeResult: wholeResult,
-                });
-                setProgress(1);
-                // const storingURI = await AsyncStorage.setItem(
-                //   "StoredURI",
-                //   `${FetchedUrl.MediaUrl[0]}?TypeOfMedia=${FetchedUrl.TypeOfMedia}&Orientation=${FetchedUrl.Orientation}&Audio=${FetchedUrl.Audio}`
-                // );
+              } else {
+                cleanMemory(setVideoName,()=>APP());
               }
-              return wholeResult;
             }
           }
         })
@@ -121,6 +134,7 @@ const Routers = () => {
           return 0;
         })
         .catch(async (error) => {
+          console.log(error);
           const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
             (result) => {
               if (result !== null) {
@@ -183,6 +197,7 @@ const Routers = () => {
   };
   return (
     <NavigationContainer>
+      {/* {console.log("Stateeeeeeeeeeeeeeeeeeeee",state)} */}
       {isLoaded && progress === 1 && state !== {} ? (
         <Stack.Navigator
           screenOptions={{
@@ -208,7 +223,11 @@ const Routers = () => {
           <Stack.Screen name="WebVideoPlayer" options={{ headerShown: false }}>
             {(props) => <WebVideoPlayer {...state} />}
           </Stack.Screen>
-          <Stack.Screen name="WebBrowserYoutube" options={{ headerShown: false }}>
+
+          <Stack.Screen
+            name="WebBrowserYoutube"
+            options={{ headerShown: false }}
+          >
             {(props) => <WebBrowserYoutube {...state} />}
           </Stack.Screen>
 
@@ -222,7 +241,6 @@ const Routers = () => {
             component={ErrorPage}
             options={{ headerShown: false }}
           />
-        
         </Stack.Navigator>
       ) : (
         <View style={styles.viewLoading}>

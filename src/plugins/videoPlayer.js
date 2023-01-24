@@ -1,72 +1,29 @@
 import {
   StyleSheet,
-  Text,
   View,
   Dimensions,
-  TouchableOpacity,
-  ImageBackground,
-  Alert,
-  Button,
 } from "react-native";
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import { Video } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 
 const VideoPlayer = ({ wholeResult,FetchedUrl }) => {
   const videoRef = React.useRef(null);
-  const [status, setStatus] = React.useState({});
-  const [index, setIndex] = React.useState(0);
   const [progress, setProgress] = React.useState(false);
-  const [isLoaded, setLoaded] = React.useState(true);
 
   React.useEffect(() => {
     if (wholeResult !== undefined) {
       setProgress(true);
     }
   }, []);
-  React.useEffect(() => {
-    if (status?.didJustFinish) {
-      setIndex((idx) => (idx == wholeResult.length - 1 ? 0 : idx + 1));
-    }
-  }, [status]);
 
-  var incr = (function () {
-    var i = 0;
-
-    return function () {
-      if (i > 2) {
-        i = 0;
-      }
-      return i++;
-    };
-  })();
-  const checkRef = () => {
-    // if (videoRef.current) {
-    setIndex((idx) => (idx == wholeResult.length - 1 ? 0 : idx + 1));
-    videoRef.current.replayAsync();
-    // }
-  };
-  const videofn = () => (
-    <Video
-      ref={videoRef}
-      style={styles.video}
-      source={{
-        uri: wholeResult[incr()],
-      }}
-      useNativeControls={false}
-      shouldPlay
-      resizeMode="stretch"
-      isLooping={true}
-    />
-  );
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {progress &&
-      wholeResult[index] !== "" &&
-      wholeResult[index] !== undefined ? (
+      wholeResult[0] !== "" &&
+      wholeResult[0] !== undefined ? (
           <Video
-           key={index}
            ref={videoRef}
            style={styles.video}
            source={{

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "videoplayer_app_27",
+    "name": "videoplayer_app_36",
     "slug": "videoplayer_app2",
     "version": "1.0.0",
     "orientation": "landscape",
@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "updates": {

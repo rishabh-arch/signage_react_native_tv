@@ -7,47 +7,54 @@ import {
 } from "react-native";
 import * as React from "react";
 import { WebView } from "react-native-webview";
-import YoutubeIframe from "react-native-youtube-iframe";
-import * as Linking from "expo-linking";
-import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
-import * as IntentLauncher from "expo-intent-launcher";
-import * as ScreenOrientation from "expo-screen-orientation";
 import * as Updates from "expo-updates";
 const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
-  const vid = wholeResult;
-  const styleVideo = {
-    transform:
-      FetchedUrl.Orientation == "Landscape"
-        ? `transform: rotate(0deg);`
-        : `transform: rotate(90deg);`,
-    size:
-      FetchedUrl.Orientation == "Landscape"
-        ? `width:100vw;
+  const [loaded, setLoaded] = React.useState(false);
+  const [styleVideo, setStyleVideo] = React.useState({});
+
+  React.useEffect(() => {
+    if (wholeResult !== undefined && FetchedUrl !== undefined) {
+      // // console.log("wholeResult", wholeResult);
+      // console.log("FetchedUrl", FetchedUrl);
+      setStyleVideo({
+        transform:
+          FetchedUrl.Orientation == "Landscape"
+            ? `transform: rotate(0deg);`
+            : `transform: rotate(90deg);`,
+        size:
+          FetchedUrl.Orientation == "Landscape"
+            ? `width:100vw;
   height:100vh;`
-        : `height:100vw;`,
+            : `height:100vw;`,
         mute: FetchedUrl.Audio == "Mute" ? `muted` : ``,
-  };
+      });
+      setLoaded(true);
+    }
+  }, [wholeResult, FetchedUrl]);
+
+  const vid = wholeResult;
   return (
-    <>
-      <TouchableOpacity
-        onLongPress={() => Updates.reloadAsync()}
-        style={styles.container}
-      >
-        <WebView
+    loaded && (
+      <>
+        <TouchableOpacity
+          onLongPress={() => Updates.reloadAsync()}
           style={styles.container}
-          originWhitelist={["*"]}
-          allowFileAccess={true}
-          allowUniversalAccessFromFileURLs={true}
-          allowFileAccessFromFileURLs={true}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          allowsFullscreenVideo={true}
-          mixedContentMode="always"
-          androidLayerType="hardware"
-          androidHardwareAccelerationDisabled={false}
-          mediaPlaybackRequiresUserAction={false}
-          source={{
-            html: `<!DOCTYPE html>
+        >
+          <WebView
+            style={styles.container}
+            originWhitelist={["*"]}
+            allowFileAccess={true}
+            allowUniversalAccessFromFileURLs={true}
+            allowFileAccessFromFileURLs={true}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            allowsFullscreenVideo={true}
+            mixedContentMode="always"
+            androidLayerType="hardware"
+            androidHardwareAccelerationDisabled={false}
+            mediaPlaybackRequiresUserAction={false}
+            source={{
+              html: `<!DOCTYPE html>
 
       <html lang="en">
         <head>
@@ -122,10 +129,11 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
         </body>
       </html>
       `,
-          }}
-        />
-      </TouchableOpacity>
-    </>
+            }}
+          />
+        </TouchableOpacity>
+      </>
+    )
   );
 };
 
