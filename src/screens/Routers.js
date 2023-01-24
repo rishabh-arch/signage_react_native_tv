@@ -24,7 +24,7 @@ import WebMedia from "../plugins/WebMedia";
 import WebBrowserYoutube from "../plugins/WebBrowserYoutube";
 import WebVideoPlayer from "../plugins/WebVideoPlayer";
 import * as FileSystem from "expo-file-system";
-
+import * as Network from "expo-network";
 const Routers = () => {
   const [TypeofMedia, setTypeofMedia] = React.useState("whoARE TYOU");
   const [state, setState] = React.useState({});
@@ -39,7 +39,6 @@ const Routers = () => {
   //Please don't create a problem for us
   // Love from Signage Team
   useEffect(() => {
-
     const APP = async () => {
       const FreeSpace = await FileSystem.getFreeDiskStorageAsync();
       console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
@@ -58,6 +57,7 @@ const Routers = () => {
               Fetched_TypeOf_Media === "video" &&
               Fetched_Data.data.msg.MediaInfo.MediaUrl.length > 1
             ) {
+              Fetched_Data.data.msg.MediaInfo.TypeOfMedia = "multi_video";
               setMediaFunction("multi_video");
             } else {
               setMediaFunction(Fetched_TypeOf_Media);
@@ -87,7 +87,7 @@ const Routers = () => {
                 wholeResult:
                   "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
               });
-              setTypeofMedia("VideoPlayer");
+              setTypeofMedia("ImagePlayer");
               return "VideoPlayer";
             } else {
               if (FreeSpace > megabytesToBytes(500)) {
@@ -114,7 +114,7 @@ const Routers = () => {
                       }
                     );
                   }
-                  setDownloaded(true);
+                  // setDownloaded(true);
                 } else {
                   wholeResult.push(FetchedUrl.MediaUrl[0]);
                   setState({
@@ -124,7 +124,7 @@ const Routers = () => {
                   setProgress(1);
                 }
               } else {
-                cleanMemory(setVideoName,()=>APP());
+                cleanMemory(setVideoName, () => APP());
               }
             }
           }
@@ -150,11 +150,11 @@ const Routers = () => {
                   FetchedUrl: params,
                   wholeResult: wholeResult,
                 });
-                if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
-                  setMediaFunction("multi_video");
-                } else {
+                // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
+                //   setMediaFunction("multi_video");
+                // } else {
                   setMediaFunction(params.TypeOfMedia);
-                }
+                // }
                 setIsLoaded(true);
                 setIsAuth(true);
                 setProgress(1);
@@ -170,7 +170,46 @@ const Routers = () => {
         });
     };
 
-    APP();
+    const checkConnectivity = async () => {
+      const { isConnected } = await Network.getNetworkStateAsync();
+      if (isConnected) {
+        APP();
+      } else {
+        const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
+          (result) => {
+            if (result !== null) {
+              const splittedResult = result.split("?");
+              var regex = /[?&]([^=#]+)=([^&#]*)/g,
+                params = {},
+                match;
+              while ((match = regex.exec(result))) {
+                params[match[1]] = match[2];
+              }
+              const wholeResult = splittedResult[0].split(",");
+              setState({
+                FetchedUrl: params,
+                wholeResult: wholeResult,
+              });
+              // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
+              //   setMediaFunction("multi_video");
+              // } else {
+                setMediaFunction(params.TypeOfMedia);
+              // }
+              setIsLoaded(true);
+              setIsAuth(true);
+              setProgress(1);
+            } else {
+              setIsAuth(false);
+              setIsLoaded(true);
+              setProgress(1);
+              setState({ "": "" });
+              setVideoName("Looks like there is no Media to play");
+            }
+          }
+        );
+      }
+    };
+    checkConnectivity();
   }, [0]);
   const setMediaFunction = (typeResult) => {
     if (typeResult === "image") {
@@ -197,12 +236,12 @@ const Routers = () => {
   };
   return (
     <NavigationContainer>
-      {/* {console.log("Stateeeeeeeeeeeeeeeeeeeee",state)} */}
       {isLoaded && progress === 1 && state !== {} ? (
         <Stack.Navigator
           screenOptions={{
             transitionSpec: { open: config },
           }}
+          // initialRouteName={"Home"}
           initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
         >
           <Stack.Screen
