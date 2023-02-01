@@ -15,7 +15,7 @@ import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as ScreenOrientation from "expo-screen-orientation";
 
-import yt from "./YoutubeRegex";
+import yt from "../plugins/YoutubeRegex";
 import * as WebBrowser from "expo-web-browser";
 const WebBrowserYoutube = ({ wholeResult,FetchedUrl }) => {
   console.log(FetchedUrl);

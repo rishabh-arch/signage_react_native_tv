@@ -9,19 +9,18 @@ import * as React from "react";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as ScreenOrientation from "expo-screen-orientation";
-
-async function changeScreenOrientation() {
-  await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-}
-async function changeScreenOrientation2() {
-  await ScreenOrientation.lockAsync(
-    ScreenOrientation.OrientationLock.LANDSCAPE
-  );
-}
-
-const intentFunction = [
-  () => startActivityAsync(ActivityAction.LOCATION_SOURCE_SETTINGS), //1
-  () => startActivityAsync(ActivityAction.APP_NOTIFICATION_REDACTION), //2
+// async function changeScreenOrientation() {
+//   await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+// }
+// async function changeScreenOrientation2() {
+//   await ScreenOrientation.lockAsync(
+//     ScreenOrientation.OrientationLock.LANDSCAPE
+//     );
+ 
+//   }changeScreenOrientation();
+  const intentFunction = [
+    () => startActivityAsync(ActivityAction.LOCATION_SOURCE_SETTINGS), //1
+    () => startActivityAsync(ActivityAction.APP_NOTIFICATION_REDACTION), //2
   () => startActivityAsync(ActivityAction.CONDITION_PROVIDER_SETTINGS), //3
   () => startActivityAsync(ActivityAction.NOTIFICATION_LISTENER_SETTINGS), //4
   () => startActivityAsync(ActivityAction.PRINT_SETTINGS), //5
@@ -91,6 +90,9 @@ const intentFunction = [
   () => startActivityAsync(ActivityAction.ZEN_MODE_SETTINGS), //69
 ];
 const DeviceIntents = () => {
+  React.useLayoutEffect(() => {
+    ScreenOrientation.unlockAsync();
+  }, []);
   return (
     <>
       <View style={styles.container}>
@@ -106,13 +108,16 @@ const DeviceIntents = () => {
         ))}
         <TouchableOpacity
           style={styles.GridButton}
-          onPress={changeScreenOrientation2}
+          // onPress={changeScreenOrientation2}
+          onPress={() => {
+            IntentLauncher.startActivityAsync(ActivityAction.SETTINGS);
+          }}
         >
-          <Text>Landscape</Text>
+          <Text>My settings</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.GridButton}
-          onPress={changeScreenOrientation}
+          // onPress={changeScreenOrientation}
         >
           <Text>Portrait</Text>
         </TouchableOpacity>

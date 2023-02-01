@@ -12,7 +12,7 @@ import * as Linking from "expo-linking";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as ScreenOrientation from "expo-screen-orientation";
-
+import YoutubePlayer from "react-native-youtube-iframe";
 async function changeScreenOrientation() {
   await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 }
@@ -94,177 +94,50 @@ const intentFunction = [
   () => startActivityAsync(ActivityAction.ZEN_MODE_SETTINGS), //69
 ];
 const WebMedia = ({ wholeResult }) => {
-  const vw = 50;
+  const vw = 100;
   const vid1 = wholeResult[0];
   const vid2 = wholeResult[1];
-const vid = wholeResult;
+  const vid = wholeResult;
   return (
-    <>
-      {console.log(wholeResult[0])}
-      {/* <View style={styles.container}>
-        {intentFunction.map((item, index) => (
-          <TouchableOpacity
-            // disabled={true}
-            // disabled={true}
-            key={index + 1}
-            style={styles.GridButton}
-            onPress={item}
-          >
-            <Text>{index + 1}</Text>
-          </TouchableOpacity>
-        ))}
-        <TouchableOpacity
-          // disabled={true}
-          // disabled={true}
-          style={styles.GridButton}
-          onPress={changeScreenOrientation2}
-        >
-          <Text>Landscape</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          // disabled={true}
-          // disabled={true}
-          style={styles.GridButton}
-          onPress={changeScreenOrientation}
-        >
-          <Text>Portrait</Text>
-        </TouchableOpacity>
-      </View> */}
-      {/* <TouchableOpacity
-        // disabled={true}
-        // disabled={true}
-        style={styles.TouchableOpacity}
-        onPress={changeScreenOrientation}
-      >
-      </TouchableOpacity> */}
+    <View style={styles.container2}>
+      <YoutubeIframe
+        // height={vw}
+        // width={vw}
+        useLocalHTML={true}
+        playListStartIndex={0}
+        height={Dimensions.get("window").height}
+        width={Dimensions.get("window").width}
+        videoId={"iee2TATGMyI"}
+        play={true}
+        style={styles.container}
+        playList={"PLyqrdaUWxZsWJHIabx4leyYVAlchb_g4V"}
+        initialPlayerParams={{
+          controls: false,
+          modestBranding: false,
+          rel: false,
+          showinfo: false,
+          fs: false,
+          playsinline: true,
+          enablejsapi: true,
+          loop: true,
+          start: 0,
+          origin: "https://youtube.com/",
+          autoplay: 1,
+          
+        }}
+        
+        forceAndroidAutoplay={true}
+      />
       {/* <WebView
         style={styles.container}
-
-      javaScriptEnabled={true}
-      domStorageEnabled={true}
-      source={{ uri: 'https://www.youtube.com/results?search_query=expo+slider' }}
-      width={Dimensions.get('window').width}
-      
-        /> */}
-      {/* <TouchableOpacity
-        onPress={async ()=>{
-          // IntentLauncher.startActivityAsync(ActivityAction.MAIN, {
-          //   packageName: 'com.android.tv.settings',
-          // });
-          // await ScreenOrientation.getOrientationAsync()
-          // .then((orientation) => {
-          //   console.log(orientation);
-          // })
-          changeScreenOrientation();
-          // startActivityAsync(
-          //   "android.intent.action.MAIN",
-          //   {
-          //     packageName: 'com.android.settings',
-          //     // packageName: 'com.android.contacts',
-          //     // className: 'com.android.tv.settings.MainSettings',
-          //   }
-          // )
-          // startActivityAsync("com.android.tv.settings");
-          // Linking.openURL('com.android.tv.settings');
-        }
-        }
-        style={styles.container}
-        >
-          <Text>Click ME</Text>
-        </TouchableOpacity> */}
-      <WebView
-         style={styles.container}
-         originWhitelist={["*"]}
-         allowFileAccess={true}
-         allowUniversalAccessFromFileURLs={true}
-         allowFileAccessFromFileURLs={true}
-         javaScriptEnabled={true}
-         domStorageEnabled={true}
-         allowsFullscreenVideo={true}
-         mixedContentMode='always'
-         androidLayerType="hardware"
-         androidHardwareAccelerationDisabled={false}
-         mediaPlaybackRequiresUserAction={false}
-        source={{
-          html: `<!DOCTYPE html>
-
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Document</title>
-          <style>
-            body {
-              margin: 0;
-              padding: 0;
-              overflow: hidden;
-              box-sizing: border-box;
-              background: #000;
-            }
-            video {
-              width: 100vw;
-              height: 100vh;
-              object-fit: cover;
-            }
-          </style>
-        </head>
-        
-        <body>
-          <video id="myVideo" autoplay muted></video>
-          <script>
-            var videoSource = new Array();
-            videoSource = ${JSON.stringify(vid)};
-            
-            var videoCount = videoSource.length;
-            var elem = document.getElementById("myVideo");
-            if (elem.requestFullscreen) {
-              elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-              elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) {
-              elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-              elem.msRequestFullscreen();
-            }
-            document.getElementById("myVideo").setAttribute("src", videoSource[0]);
-      
-            function videoPlay(videoNum) {
-              document
-                .getElementById("myVideo")
-                .setAttribute("src", videoSource[videoNum]);
-              document.getElementById("myVideo").load();
-              document.getElementById("myVideo").play();
-            }
-            document
-              .getElementById("myVideo")
-              .addEventListener("ended", myHandler, false);
-            // var i = 0;
-            var incr = (function () {
-              var i = 0;
-      
-              return function () {
-                if (i > videoCount - 1) {
-                  i = 0;
-                }
-                return i++;
-              };
-            })();
-            function myHandler() {
-              // if (j == videoCount - 1) {
-              // j = 0;
-              videoPlay(incr());
-              // } else {
-              //   videoPlay(j);
-              // }
-            }
-          </script>
-        </body>
-      </html>
-      `,
-        }}
-      />
-    </>
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        allowsFullscreenVideo={true}
+        allowsInlineMediaPlayback={true}
+        // userAgent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0"
+        source={{ uri: "https://youtube.com/embed/iee2TATGMyI?rel=0&autoplay=1&controls=0&showinfo=0&playlist=iee2TATGMyI&loop=1&mute=1" }}
+      /> */}
+    </View>
   );
 };
 
@@ -276,24 +149,39 @@ const styles = StyleSheet.create({
     width: 900,
     height: 900,
     position: "absolute",
-    borderWidth: 3,
-    borderColor: "red",
     zIndex: 1,
   },
   container: {
     flex: 1,
-    border: "1px solid red",
     flexWrap: "wrap",
-    // backgroundColor: '#fff',
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    width: 40,
-    // height: Dimensions.get('window').height,
+    height: Dimensions.get("window").height,
     width: Dimensions.get("window").width,
-
+    // width: 100,
+    position: "relative",
     borderWidth: 3,
     borderColor: "blue",
-    position: "relative",
+
+    // transform: [{ rotate: "180deg" }],
+    // resizeMode: "cover",
+  },
+  container2: {
+    // flex: 1,
+    // flexWrap: "wrap",
+    // backgroundColor: '#fff',
+    // alignItems: "center",
+    // justifyContent: "center",
+    height: Dimensions.get("window").height,
+    width: Dimensions.get("window").width,
+    // // width: 100,
+    // position: "relative",
+    borderWidth: 3,
+    borderColor: "red",
+
+    // transform: [{ rotate: "90deg" }],
+    // resizeMode: "cover",
   },
   // container: {
   //     flex: 1,

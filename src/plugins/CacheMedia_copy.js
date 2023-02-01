@@ -1,11 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 const CacheMedia_copy = async (url, setProgress, next) => {
-  // const FreeSpace = await FileSystem.getFreeDiskStorageAsync();
-  // console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
-  // console.log("url ", url);
   const fileName = url.split("/").pop();
-
   const FileStatus = await AsyncStorage.getItem(fileName)
     .then((res) => res)
     .catch((err) => {
@@ -73,16 +69,10 @@ const CacheMedia_copy = async (url, setProgress, next) => {
       next(fileInfo.uri);
     }
   };
-
-  // FileDownload();
-  // if (FreeSpace > megabytesToBytes(500)) {
   FileDownload();
-  // } else {
-  // cleanMemory();
-  // }
 };
 const megabytesToBytes = (megabytes) => megabytes * 1000000.0;
-const cleanMemory = async (totalClean,done) => {
+const cleanMemory = async (totalClean) => {
   const memoryName = "TotalSavedMemory3";
   const TotalSavedMemory = await AsyncStorage.getItem(memoryName);
   console.log("TotalSavedMemory ", TotalSavedMemory);
@@ -101,7 +91,7 @@ const cleanMemory = async (totalClean,done) => {
         const totalCleanPercentage =
           (i / (TotalSavedMemoryInArrayLength - 1)) * 100;
         totalClean(
-          `Oops! You have filled your memory. Don't worry. We are cleaning it: ${totalCleanPercentage}% ${
+          `Oops! You have filled your memory. Don't worry. We are cleaning it: ${totalCleanPercentage.toFixed(0)}% ${
             totalCleanPercentage !== 100
               ? "Please wait..."
               : "Done! Now Restart the app."
@@ -109,11 +99,17 @@ const cleanMemory = async (totalClean,done) => {
           `
         );
         if (totalCleanPercentage === 100) {
-          done();
+          totalClean(
+            `ALL CLEANED!.
+            `
+          );
         }
       });
     }
     await AsyncStorage.removeItem(memoryName);
+  }
+  else{
+    totalClean("All Cleaned")
   }
 };
 module.exports = { CacheMedia_copy, cleanMemory, megabytesToBytes };

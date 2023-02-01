@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, View, Dimensions, Animated } from "react-native";
-import VideoPlayer from "../plugins/videoPlayer";
-import ImagePlayer from "../plugins/ImagePlayer";
+import VideoPlayer from "../plugins/players/videoPlayer";
+import ImagePlayer from "../plugins/players/ImagePlayer";
 import QrCodePage from "../screens/QrCodePage";
 import { NavigationContainer } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,18 +13,20 @@ import { AuthContext } from "../components/context/AuthContext";
 import * as Progress from "react-native-progress";
 import { androidId } from "expo-application";
 import axios from "axios";
-import CacheMedia from "../plugins/CacheMedia";
 import {
   CacheMedia_copy,
   cleanMemory,
   megabytesToBytes,
 } from "../plugins/CacheMedia_copy";
 import CheckNetworkStatus from "../plugins/CheckNetworkStatus";
-import WebMedia from "../plugins/WebMedia";
-import WebBrowserYoutube from "../plugins/WebBrowserYoutube";
-import WebVideoPlayer from "../plugins/WebVideoPlayer";
+// import WebMedia from "../Debugs/WebMedia";
+// import WebBrowserYoutube from "../plugins/WebBrowserYoutube";
+import WebVideoPlayer from "../plugins/players/WebVideoPlayer";
+import YoutubeIframePlayer from "../plugins/players/YoutubeIframePlayer";
+import WebHtml from "../plugins/players/WebHtml";
 import * as FileSystem from "expo-file-system";
 import * as Network from "expo-network";
+import DeviceIntents from "../plugins/DeviceIntents";
 const Routers = () => {
   const [TypeofMedia, setTypeofMedia] = React.useState("whoARE TYOU");
   const [state, setState] = React.useState({});
@@ -41,12 +43,12 @@ const Routers = () => {
   useEffect(() => {
     const APP = async () => {
       const FreeSpace = await FileSystem.getFreeDiskStorageAsync();
-      console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
+      // console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
       setIsLoaded(false);
       const response = await axios
-        .post(
-          "http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization",
-          { UID: androidId }
+        .get(
+          `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
+          // { UID: androidId }
         )
         .then(async (Fetched_Data) => {
           if (!Fetched_Data.data.msgError) {
@@ -87,7 +89,7 @@ const Routers = () => {
                 wholeResult:
                   "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
               });
-              setTypeofMedia("ImagePlayer");
+              setTypeofMedia("VideoPlayer");
               return "VideoPlayer";
             } else {
               if (FreeSpace > megabytesToBytes(500)) {
@@ -135,79 +137,58 @@ const Routers = () => {
         })
         .catch(async (error) => {
           console.log(error);
-          const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
-            (result) => {
-              if (result !== null) {
-                const splittedResult = result.split("?");
-                var regex = /[?&]([^=#]+)=([^&#]*)/g,
-                  params = {},
-                  match;
-                while ((match = regex.exec(result))) {
-                  params[match[1]] = match[2];
-                }
-                const wholeResult = splittedResult[0].split(",");
-                setState({
-                  FetchedUrl: params,
-                  wholeResult: wholeResult,
-                });
-                // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
-                //   setMediaFunction("multi_video");
-                // } else {
-                  setMediaFunction(params.TypeOfMedia);
-                // }
-                setIsLoaded(true);
-                setIsAuth(true);
-                setProgress(1);
-              } else {
-                setIsAuth(false);
-                setIsLoaded(true);
-                setProgress(1);
-                setState({ "": "" });
-                setVideoName("Looks like there is no Media to play");
-              }
-            }
-          );
+          No_Network_AsyncStorage();
         });
     };
+    const No_Network_AsyncStorage = async () => {
+      setIsAuth(true);
 
-    const checkConnectivity = async () => {
-      const { isConnected } = await Network.getNetworkStateAsync();
-      if (isConnected) {
-        APP();
-      } else {
-        const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
-          (result) => {
-            if (result !== null) {
-              const splittedResult = result.split("?");
-              var regex = /[?&]([^=#]+)=([^&#]*)/g,
-                params = {},
-                match;
-              while ((match = regex.exec(result))) {
-                params[match[1]] = match[2];
-              }
-              const wholeResult = splittedResult[0].split(",");
-              setState({
-                FetchedUrl: params,
-                wholeResult: wholeResult,
-              });
-              // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
-              //   setMediaFunction("multi_video");
-              // } else {
-                setMediaFunction(params.TypeOfMedia);
-              // }
-              setIsLoaded(true);
-              setIsAuth(true);
-              setProgress(1);
-            } else {
-              setIsAuth(false);
-              setIsLoaded(true);
-              setProgress(1);
-              setState({ "": "" });
-              setVideoName("Looks like there is no Media to play");
+      const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
+        (result) => {
+          if (result !== null) {
+            const splittedResult = result.split("?");
+            var regex = /[?&]([^=#]+)=([^&#]*)/g,
+              params = {},
+              match;
+            while ((match = regex.exec(result))) {
+              params[match[1]] = match[2];
             }
+            const wholeResult = splittedResult[0].split(",");
+            setState({
+              FetchedUrl: params,
+              wholeResult: wholeResult,
+            });
+            // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
+            //   setMediaFunction("multi_video");
+            // } else {
+            setMediaFunction(params.TypeOfMedia);
+            // }
+            setIsLoaded(true);
+            setProgress(1);
+          } else {
+            setIsLoaded(true);
+            setProgress(1);
+            setState({ "": "" });
+            // setVideoName("Looks like there is no Media to play");
+            setMediaFunction("Home");
           }
-        );
-      }
+        }
+      );
+    };
+    const checkConnectivity = async () => {
+      const isConnected = await Network.getNetworkStateAsync()
+        .then(async (status) => {
+          console.log(status.isConnected);
+          if (status.isConnected) {
+            APP();
+          } else {
+            alert("You are not connected to the internet");
+            No_Network_AsyncStorage();
+          }
+        })
+        .catch(async (error) => {
+          No_Network_AsyncStorage();
+        });
     };
     checkConnectivity();
   }, [0]);
@@ -218,8 +199,10 @@ const Routers = () => {
       setTypeofMedia("VideoPlayer");
     } else if (typeResult === "multi_video") {
       setTypeofMedia("WebVideoPlayer");
+    } else if (typeResult === "Home") {
+      setTypeofMedia("Home");
     } else {
-      setTypeofMedia("WebBrowserYoutube");
+      setTypeofMedia("YoutubeIframePlayer");
     }
   };
   const Stack = createNativeStackNavigator();
@@ -235,40 +218,46 @@ const Routers = () => {
     },
   };
   return (
-    <NavigationContainer>
+    <NavigationContainer
+    >
+    
       {isLoaded && progress === 1 && state !== {} ? (
         <Stack.Navigator
           screenOptions={{
             transitionSpec: { open: config },
           }}
           // initialRouteName={"Home"}
-          initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
+          initialRouteName={"WebHtml"}
+          // initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
+          
         >
+          
           <Stack.Screen
             name="QrCodePage"
             component={QrCodePage}
             options={{ headerShown: false }}
           />
+
+
           <Stack.Screen name="VideoPlayer" options={{ headerShown: false }}>
             {(props) => <VideoPlayer {...state} />}
           </Stack.Screen>
-
           <Stack.Screen name="ImagePlayer" options={{ headerShown: false }}>
             {(props) => <ImagePlayer {...state} />}
-          </Stack.Screen>
-          <Stack.Screen name="WebMedia" options={{ headerShown: false }}>
-            {(props) => <WebMedia {...state} />}
           </Stack.Screen>
           <Stack.Screen name="WebVideoPlayer" options={{ headerShown: false }}>
             {(props) => <WebVideoPlayer {...state} />}
           </Stack.Screen>
-
-          <Stack.Screen
-            name="WebBrowserYoutube"
-            options={{ headerShown: false }}
-          >
+          {/* <Stack.Screen name="WebBrowserYoutube" options={{ headerShown: false }}>
             {(props) => <WebBrowserYoutube {...state} />}
+          </Stack.Screen> */}
+          <Stack.Screen name="YoutubeIframePlayer" options={{ headerShown: false }}>
+            {(props) => <YoutubeIframePlayer {...state} />}
           </Stack.Screen>
+          <Stack.Screen name="WebHtml" options={{ headerShown: false }}>
+            {(props) => <WebHtml {...state} />}
+          </Stack.Screen>
+
 
           <Stack.Screen
             name="Home"
@@ -278,6 +267,11 @@ const Routers = () => {
           <Stack.Screen
             name="ErrorPage"
             component={ErrorPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="DeviceIntents"
+            component={DeviceIntents}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

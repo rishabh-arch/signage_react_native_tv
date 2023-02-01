@@ -10,8 +10,8 @@ import {
 import React from "react";
 import { Video } from "expo-av";
 import * as Progress from "react-native-progress";
-import Home from "../screens/Home";
-import ScrollingBackground from "react-native-scrolling-images";
+// import Home from "../../screens/Home";
+// import ScrollingBackground from "react-native-scrolling-images";
 import { useNavigation } from "@react-navigation/native";
 
 // const { height, width } = useWindowDimensions();

@@ -14,13 +14,11 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
 
   React.useEffect(() => {
     if (wholeResult !== undefined && FetchedUrl !== undefined) {
-      // // console.log("wholeResult", wholeResult);
-      // console.log("FetchedUrl", FetchedUrl);
       setStyleVideo({
         transform:
           FetchedUrl.Orientation == "Landscape"
             ? `transform: rotate(0deg);`
-            : `transform: rotate(90deg);`,
+            : `transform: rotate(270deg);`,
         size:
           FetchedUrl.Orientation == "Landscape"
             ? `width:100vw;

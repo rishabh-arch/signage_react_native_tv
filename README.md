@@ -13,3 +13,5 @@
 [https://rgbacolorpicker.com/](rgbacolorpicker)
 
 [https://coolors.co/f0be30](coolors)
+
+[https://technastic.com/adb-shell-commands-list/](adb shell commands list)
