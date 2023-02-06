@@ -8,23 +8,28 @@ import {
 import * as React from "react";
 import { WebView } from "react-native-webview";
 import * as Updates from "expo-updates";
+import { useNavigation } from "@react-navigation/native";
 const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
   const [loaded, setLoaded] = React.useState(false);
   const [styleVideo, setStyleVideo] = React.useState({});
-
+  const navigation = useNavigation();
   React.useEffect(() => {
     if (wholeResult !== undefined && FetchedUrl !== undefined) {
       setStyleVideo({
         transform:
           FetchedUrl.Orientation == "Landscape"
             ? `transform: rotate(0deg);`
-            : `transform: rotate(270deg);`,
+            : `transform: rotate(90deg);`,
         size:
           FetchedUrl.Orientation == "Landscape"
             ? `width:100vw;
   height:100vh;`
             : `height:100vw;`,
         mute: FetchedUrl.Audio == "Mute" ? `muted` : ``,
+        parentTransform:
+          FetchedUrl.Orientation == "Landscape"
+            ? `transform: rotate(0deg);`
+            : `transform: rotate(180deg);`,
       });
       setLoaded(true);
     }
@@ -35,7 +40,12 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
     loaded && (
       <>
         <TouchableOpacity
-          onLongPress={() => Updates.reloadAsync()}
+          onLongPress={() =>
+            setTimeout(() => {
+              navigation.navigate("Home");
+            }, 7000)
+            
+            }
           style={styles.container}
         >
           <WebView
@@ -77,6 +87,7 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
               border: none;
               ${styleVideo.size}
               object-fit: contain;
+              ${styleVideo.parentTransform}
             }
           </style>
         </head>

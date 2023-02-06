@@ -28,7 +28,7 @@ import * as FileSystem from "expo-file-system";
 import * as Network from "expo-network";
 import DeviceIntents from "../plugins/DeviceIntents";
 const Routers = () => {
-  const [TypeofMedia, setTypeofMedia] = React.useState("whoARE TYOU");
+  const [TypeofMedia, setTypeofMedia] = React.useState("");
   const [state, setState] = React.useState({});
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isAuth, setIsAuth] = React.useState(false);
@@ -43,15 +43,14 @@ const Routers = () => {
   useEffect(() => {
     const APP = async () => {
       const FreeSpace = await FileSystem.getFreeDiskStorageAsync();
-      // console.log("__________FreeSpace________", FreeSpace * 0.000001, "MB");
       setIsLoaded(false);
       const response = await axios
         .get(
           `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
-          // { UID: androidId }
         )
         .then(async (Fetched_Data) => {
           if (!Fetched_Data.data.msgError) {
+            console.log(Fetched_Data.data.msg.MediaInfo);
             const checkingAuth = await AsyncStorage.getItem("isAuth");
             const Fetched_TypeOf_Media =
               Fetched_Data.data.msg.MediaInfo.TypeOfMedia;
@@ -75,19 +74,25 @@ const Routers = () => {
             setProgress(1);
             setState({
               FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
-              wholeResult:
-                "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
+              wholeResult: [
+                "https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4",
+              ],
             });
             setTypeofMedia("VideoPlayer");
             return "VideoPlayer";
           } else {
             setIsAuth(true);
-            if (result[0].data.msg.MediaInfo.MediaUrl[0] === undefined) {
+            if (
+              result[0].data.msg.MediaInfo.MediaUrl[0] === undefined ||
+              result[0].data.msg.MediaInfo.MediaUrl[0] === ""
+            ) {
+              console.log("user is not wolfkey");
               setProgress(1);
               setState({
                 FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
-                wholeResult:
-                  "https://video-previews.elements.envatousercontent.com/696e3557-848c-4e4c-a245-c7ee950867ed/watermarked_preview/watermarked_preview.mp4",
+                wholeResult: [
+                  "https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4",
+                ],
               });
               setTypeofMedia("VideoPlayer");
               return "VideoPlayer";
@@ -96,7 +101,7 @@ const Routers = () => {
                 const FetchedUrl = result[0].data.msg.MediaInfo;
                 const wholeResult = [];
 
-                if (FetchedUrl.TypeOfMedia !== "youtube") {
+                if (FetchedUrl.TypeOfMedia !== "youtube" && FetchedUrl.TypeOfMedia !== "website") {
                   for (let i = 0; i < FetchedUrl.MediaUrl.length; i++) {
                     const cachingMedia = await CacheMedia_copy(
                       FetchedUrl.MediaUrl[i],
@@ -136,16 +141,21 @@ const Routers = () => {
           return 0;
         })
         .catch(async (error) => {
-          console.log(error);
-          No_Network_AsyncStorage();
+          // console.log("error from Catch", error);
+          setIsAuth(false);
+          setIsLoaded(true);
+          setProgress(1);
+          setTypeofMedia("-");
+          // No_Network_AsyncStorage();
         });
     };
     const No_Network_AsyncStorage = async () => {
-      setIsAuth(true);
-
       const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
         (result) => {
-          if (result !== null) {
+          setIsAuth(true);
+          setIsLoaded(true);
+          setProgress(1);
+          if (result !== null && result !== "" && result !== undefined) {
             const splittedResult = result.split("?");
             var regex = /[?&]([^=#]+)=([^&#]*)/g,
               params = {},
@@ -158,19 +168,10 @@ const Routers = () => {
               FetchedUrl: params,
               wholeResult: wholeResult,
             });
-            // if (params.TypeOfMedia === "video" && wholeResult.length > 1) {
-            //   setMediaFunction("multi_video");
-            // } else {
             setMediaFunction(params.TypeOfMedia);
-            // }
-            setIsLoaded(true);
-            setProgress(1);
           } else {
-            setIsLoaded(true);
-            setProgress(1);
-            setState({ "": "" });
-            // setVideoName("Looks like there is no Media to play");
             setMediaFunction("Home");
+            setState({ "": "" });
           }
         }
       );
@@ -178,11 +179,13 @@ const Routers = () => {
     const checkConnectivity = async () => {
       const isConnected = await Network.getNetworkStateAsync()
         .then(async (status) => {
-          console.log(status.isConnected);
           if (status.isConnected) {
+            // console.log("You are connected to the internet");
+            // No_Network_AsyncStorage();
+
             APP();
           } else {
-            alert("You are not connected to the internet");
+            // alert("You are not connected to the internet");
             No_Network_AsyncStorage();
           }
         })
@@ -192,6 +195,7 @@ const Routers = () => {
     };
     checkConnectivity();
   }, [0]);
+
   const setMediaFunction = (typeResult) => {
     if (typeResult === "image") {
       setTypeofMedia("ImagePlayer");
@@ -201,6 +205,8 @@ const Routers = () => {
       setTypeofMedia("WebVideoPlayer");
     } else if (typeResult === "Home") {
       setTypeofMedia("Home");
+    } else if (typeResult === "website") {
+      setTypeofMedia("WebHtml");
     } else {
       setTypeofMedia("YoutubeIframePlayer");
     }
@@ -218,26 +224,22 @@ const Routers = () => {
     },
   };
   return (
-    <NavigationContainer
-    >
-    
-      {isLoaded && progress === 1 && state !== {} ? (
+    <NavigationContainer>
+      {isLoaded && progress === 1 && state !== {} && TypeofMedia !== "" ? (
         <Stack.Navigator
           screenOptions={{
             transitionSpec: { open: config },
           }}
           // initialRouteName={"Home"}
-          initialRouteName={"WebHtml"}
-          // initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
-          
+          // initialRouteName={"WebHtml"}
+          initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
         >
-          
+          {console.log("TypeofMedia", TypeofMedia)}
           <Stack.Screen
             name="QrCodePage"
             component={QrCodePage}
             options={{ headerShown: false }}
           />
-
 
           <Stack.Screen name="VideoPlayer" options={{ headerShown: false }}>
             {(props) => <VideoPlayer {...state} />}
@@ -251,13 +253,15 @@ const Routers = () => {
           {/* <Stack.Screen name="WebBrowserYoutube" options={{ headerShown: false }}>
             {(props) => <WebBrowserYoutube {...state} />}
           </Stack.Screen> */}
-          <Stack.Screen name="YoutubeIframePlayer" options={{ headerShown: false }}>
+          <Stack.Screen
+            name="YoutubeIframePlayer"
+            options={{ headerShown: false }}
+          >
             {(props) => <YoutubeIframePlayer {...state} />}
           </Stack.Screen>
           <Stack.Screen name="WebHtml" options={{ headerShown: false }}>
             {(props) => <WebHtml {...state} />}
           </Stack.Screen>
-
 
           <Stack.Screen
             name="Home"

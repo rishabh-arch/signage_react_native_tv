@@ -8,13 +8,17 @@ import {
 import { useEffect, useState, useRef } from "react";
 import { WebView } from "react-native-webview";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+
 const WebHtml = ({ wholeResult, FetchedUrl }) => {
+  const navigation = useNavigation();
+
   const [touch, setTouch] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const webviewRef = useRef(null);
   useEffect(() => {
     if (wholeResult !== undefined && FetchedUrl !== undefined) {
-      FetchedUrl.touch ? setTouch(3) : setTouch(0);
+      FetchedUrl.touch=="false" ? setTouch(3) : setTouch(0);
       setLoaded(true);
     }
   }, [wholeResult, FetchedUrl]);
@@ -43,8 +47,15 @@ const WebHtml = ({ wholeResult, FetchedUrl }) => {
           >
             <TouchableOpacity
               style={styles.TouchableOpacity}
+              onLongPress={() => {
+                setTimeout(() => {
+                  navigation.navigate("Home");
+                }, 7000);
+              }}
               onPress={() => {
                 webviewRef.current.goBack();
+                // navigation.navigate("Home");
+
               }}
             >
               <Ionicons

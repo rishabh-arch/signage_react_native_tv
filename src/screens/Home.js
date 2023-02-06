@@ -19,12 +19,14 @@ import * as IntentLauncher from "expo-intent-launcher";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-
+import * as Linking from 'expo-linking';
+import { useNavigation } from "@react-navigation/native";
 function showToast(text) {
   ToastAndroid.show(text, ToastAndroid.SHORT);
 }
 
 const Home = () => {
+  const navigation = useNavigation();
   return (
     <View
     style={{
@@ -111,6 +113,42 @@ const Home = () => {
             </Text>
           </View>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            Linking.openURL('http://play.google.com/store/apps/details?id=com.google.android.apps.maps');
+          }}
+        >
+          <View>
+            <Text style={styles.item}>
+              <Ionicons
+                name="logo-google-playstore"
+                size={25}
+                style={styles.Icons}
+                color="white"
+              />
+              {"  "}
+              Update App
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <View>
+            <Text style={styles.item}>
+              <Ionicons
+                name="arrow-back"
+                size={25}
+                style={styles.Icons}
+                color="white"
+              />
+              {"  "}
+             Go Back
+            </Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
     </View>
     </View>
@@ -169,6 +207,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "#1e1e1c",
     transform: [{ scale: 0.9 }, { perspective: 1}],
+    borderRadius: 25,
+
   },
   containerBox: {
     flex: 1,

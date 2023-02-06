@@ -9,6 +9,8 @@ import * as React from "react";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as ScreenOrientation from "expo-screen-orientation";
+import * as Linking from 'expo-linking';
+
 // async function changeScreenOrientation() {
 //   await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 // }
@@ -117,7 +119,10 @@ const DeviceIntents = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.GridButton}
-          // onPress={changeScreenOrientation}
+          onPress={()=>{
+            Linking.openURL('"http://play.google.com/store/apps/details?id=com.google.android.apps.maps"');
+
+          }}
         >
           <Text>Portrait</Text>
         </TouchableOpacity>

@@ -9,7 +9,7 @@ import { androidId } from "expo-application";
 import * as Device from "expo-device";
 const QrCodePage = () => {
   const [isLoaded, setIsLoaded] = React.useState(false);
-
+  
   const checkAuth = async () => {
     const t = setInterval(async () => {
       const response = await axios
@@ -26,7 +26,6 @@ const QrCodePage = () => {
           return res;
         })
         .catch((error) => console.log("error no server ", error));
-      // console.log("response ", response.data.userIsOK);
     }, 3000);
     function stop() {
       clearInterval(t);

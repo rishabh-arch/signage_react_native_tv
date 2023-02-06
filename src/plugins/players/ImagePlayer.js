@@ -42,7 +42,7 @@ const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
         onLongPress={() => {
           navigation.navigate("Home");
         }}
-        delayLongPress={3000}
+        delayLongPress={7000}
       >
         {progress &&
         wholeResult[index] !== "" &&

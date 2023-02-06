@@ -1,13 +1,9 @@
-import {
-  StyleSheet,
-  View,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, View, Dimensions, TouchableOpacity } from "react-native";
 import React from "react";
 import { Video } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 
-const VideoPlayer = ({ wholeResult,FetchedUrl }) => {
+const VideoPlayer = ({ wholeResult, FetchedUrl }) => {
   const videoRef = React.useRef(null);
   const [progress, setProgress] = React.useState(false);
 
@@ -19,30 +15,35 @@ const VideoPlayer = ({ wholeResult,FetchedUrl }) => {
 
   const navigation = useNavigation();
   return (
-    <View style={styles.container}>
-      {progress &&
-      wholeResult[0] !== "" &&
-      wholeResult[0] !== undefined ? (
+    // <View style={styles.container}>
+       <TouchableOpacity
+        onLongPress={() =>
+          setTimeout(() => {
+            navigation.navigate("Home");
+          }, 7000)
+        }
+        style={styles.container}
+      > 
+        {progress && wholeResult[0] !== "" && wholeResult[0] !== undefined ? (
           <Video
-           ref={videoRef}
-           style={styles.video}
-           source={{
-             uri: wholeResult[0],
-           }}
-           onError={(error) => {
+            ref={videoRef}
+            style={styles.video}
+            source={{
+              uri: wholeResult[0],
+            }}
+            onError={(error) => {
               alert(error);
             }}
-           useNativeControls={false}
-           shouldPlay
-           resizeMode="contain"
-           isLooping={true}
-           isMuted={FetchedUrl.Audio=="Mute"?true:false}
-           rotation={
-            FetchedUrl.Orientation == "Landscape"?0:270
-           }
-         />
-      ) : null}
-    </View>
+            useNativeControls={false}
+            shouldPlay
+            resizeMode="contain"
+            isLooping={true}
+            isMuted={FetchedUrl.Audio == "Mute" ? true : false}
+            rotation={FetchedUrl.Orientation == "Landscape" ? 0 : 270}
+          />
+        ) : null}
+      </TouchableOpacity>
+  
   );
 };
 
@@ -55,12 +56,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
-
   },
   video: {
     position: "absolute",
     width: Dimensions.get("window").width,
-    height: Dimensions.get('window').width,
+    height: Dimensions.get("window").width,
     flex: 1,
     alignSelf: "stretch",
   },
