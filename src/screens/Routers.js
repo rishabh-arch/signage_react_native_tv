@@ -80,7 +80,6 @@ const Routers = () => {
           } else {
             if (FreeSpace > megabytesToBytes(500)) {
               const FetchedUrl = result[0].data.msg.MediaInfo;
-              console.log("FetchedUrl", FetchedUrl);
               const wholeResult = [];
 
               if (
@@ -88,7 +87,6 @@ const Routers = () => {
                 FetchedUrl.TypeOfMedia !== "website"
               ) {
                 const Urls_length = FetchedUrl.MediaUrl.length;
-                console.log("Urls_length", Urls_length);
                 for (let i = 0; i < Urls_length; i++) {
                   const cachingMedia = await CacheMedia_copy(
                     FetchedUrl.MediaUrl[i][`${result[2]}Url`],

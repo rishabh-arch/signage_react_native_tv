@@ -74,6 +74,9 @@ function playVideo(videoUrl, loop) {
     }
         video.src = videoSource[currentIndex].uri;
         video.play();
+        
     }
     
 }
+
+

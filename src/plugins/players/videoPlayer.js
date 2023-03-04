@@ -24,12 +24,12 @@ const VideoPlayer = ({ wholeResult, FetchedUrl }) => {
         }
         style={styles.container}
       > 
-        {progress && wholeResult[0] !== "" && wholeResult[0] !== undefined ? (
+        {progress && wholeResult[0].uri !== "" && wholeResult[0].uri !== undefined ? (
           <Video
             ref={videoRef}
             style={styles.video}
             source={{
-              uri: wholeResult[0],
+              uri: wholeResult[0].uri,
             }}
             onError={(error) => {
               alert(error);
