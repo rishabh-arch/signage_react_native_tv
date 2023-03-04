@@ -145,68 +145,57 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
             } else if (elem.msRequestFullscreen) {
               elem.msRequestFullscreen();
             }
-           
-            let currentIndex = 0;
-            document.getElementById("myVideo").setAttribute("src", videoSource[currentIndex].uri);
-            const video = document.getElementById("myVideo");
-            
-            document
-            .getElementById("myVideo")
-            .addEventListener("ended", playCurrentVideo, false);
-            
-            function playVideo(videoUrl, loop) {
-              video.src = videoUrl;
-              video.loop = loop;
-              video.play();
-            }
-            function playCurrentVideo(){
-              currentIndex = (currentIndex + 1) % videoSource.length;
-              const disableSchedule = videoSource[currentIndex].mediaSchedule.disableSchedule;
-              
-              if(disableSchedule=="false"){
-                const now = new Date();
-                  const fromDate = new Date(videoSource[currentIndex].mediaSchedule.fromDate);
-                  const toDate = new Date(videoSource[currentIndex].mediaSchedule.toDate);
-              if (now >= fromDate && now <= toDate) {
-                  video.src = videoSource[currentIndex].uri;
-                  video.play();
-              }
-              else {
-                if(now<fromDate)
-                {
-                  video.pause();
-                 playCurrentVideo();
-                 return;
-                }
-
-                videoSource.splice(currentIndex, 1);
-                if(videoSource.length<=1){
-                  document
-                .getElementById("myVideo").removeEventListener("ended", playCurrentVideo, false);
-                playVideo(videoSource[0].uri, true);
-                return;
-              }
-                video.pause();
-                 playCurrentVideo();
-                  }
-              }
-              else{
-                if(videoSource.length<=1){
-                  document
-                .getElementById("myVideo").removeEventListener("ended", playCurrentVideo, false);
-                playVideo(videoSource[0].uri, true);
-                return;
-              }
-                  video.src = videoSource[currentIndex].uri;
-                  video.play();
-              }
-              
-          }
-          
-            
-
-          
+            document.getElementById("myVideo").setAttribute("src", videoSource[0].uri);
       
+            function videoPlay(videoNum) {
+              document
+                .getElementById("myVideo")
+                .setAttribute("src", videoSource[videoNum].uri);
+              document.getElementById("myVideo").load();
+              document.getElementById("myVideo").play();
+            }
+            document
+              .getElementById("myVideo")
+              .addEventListener("ended", myHandler, false);
+            var incr = (function () {
+              var i = 0;
+      
+              return function () {
+                    const now = new Date();
+                    const fromDate = new Date(videoSource[i].mediaSchedule.fromDate);
+                    const toDate = new Date(videoSource[i].mediaSchedule.toDate);
+                    if (videoSource[i].mediaSchedule.disableSchedule == "true") {
+                      if (i < videoCount-1) {
+                        i++;
+                      } else {
+                        i = 0;
+                      }
+                    } else if (now > fromDate && now < toDate) {
+                      if (i < videoCount-1) {
+                        i++;
+                      } else {
+                        i = 0;
+                      }
+                    } else {
+                      if (i < videoCount-1) {
+                        i++;
+                        const fromDate = new Date(videoSource[i].mediaSchedule.fromDate);
+                    const toDate = new Date(videoSource[i].mediaSchedule.toDate);
+                        if (now > fromDate && now < toDate) {
+                          i = i;
+                        } else {
+                          i = 0;
+                        }
+                      } else {
+                        i = 0;
+                      }
+                    }
+                return i;
+              };
+            })();
+            function myHandler() {
+              videoPlay(incr());
+            }
           </script>
         </body>
       </html>

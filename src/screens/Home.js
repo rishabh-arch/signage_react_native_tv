@@ -21,10 +21,30 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Linking from 'expo-linking';
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import * as Network from "expo-network";
+
 function showToast(text) {
   ToastAndroid.show(text, ToastAndroid.SHORT);
 }
 
+const handleLogout = async () => {
+  const isConnected = await Network.getNetworkStateAsync()
+  .then((status) => {
+    if(status.isConnected)
+    return true
+    else
+    throw new Error("No Internet Connection");
+  })
+    
+// const response = await axios
+            // .get(
+            //   `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
+            // )
+
+  await AsyncStorage.removeItem("isAuth"); 
+  await AsyncStorage.removeItem("StoredURI");
+};  
 const Home = () => {
   const navigation = useNavigation();
   return (
@@ -33,7 +53,7 @@ const Home = () => {
       flex: 1,
       flexDirection: "column",
       justifyContent: "space-between",
-      backgroundColor: "#000",
+      backgroundColor: "#F5C000",
     }}
     >
 
@@ -96,9 +116,7 @@ const Home = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => {
-            AsyncStorage.removeItem("isAuth");
-          }}
+          onPress={handleLogout}
         >
           <View>
             <Text style={styles.item}>
@@ -128,6 +146,24 @@ const Home = () => {
               />
               {"  "}
               Update App
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("QrCodePage");
+          }}
+        >
+          <View>
+            <Text style={styles.item}>
+              <Ionicons
+                name="qr-code"
+                size={25}
+                style={styles.Icons}
+                color="white"
+              />
+              {"  "}
+             QR CODE
             </Text>
           </View>
         </TouchableOpacity>
@@ -178,12 +214,12 @@ const styles = StyleSheet.create({
     padding: 20,
     fontSize: 20,
     marginTop: 5,
-    backgroundColor: "#1e1e1c",
+    backgroundColor: "#23211E",
     width: Dimensions.get("window").width,
     color: "white",
     marginVertical: 8,
     // marginHorizontal: 16,
-    borderBottomColor: "#ef9b1c",
+    borderBottomColor: "#F5C000",
     borderBottomWidth: 3,
     // borderColor: "white",
     // borderWidth: 1,
@@ -205,9 +241,9 @@ const styles = StyleSheet.create({
     width: "90%",
     // margin: 10,
     alignSelf: "center",
-    backgroundColor: "#1e1e1c",
+    backgroundColor: "#23211E",
     transform: [{ scale: 0.9 }, { perspective: 1}],
-    borderRadius: 25,
+    // borderRadius: 25,
 
   },
   containerBox: {
@@ -221,8 +257,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: "10%",
     borderWidth: 1,
-    borderColor: "#1e1e1c",
-    borderBottomColor: "#ef9b1c",
+    borderColor: "#23211E",
+    borderBottomColor: "#F5C000",
     // borderBottomWidth: 1,
   },
   PressableBtn: {
@@ -239,6 +275,7 @@ const styles = StyleSheet.create({
   background: {
     width: "100%",
     height: "100%",
+    backgroundColor: "#fff",
   },
   logo: {
     width: 280,

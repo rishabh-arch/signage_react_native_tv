@@ -46,10 +46,12 @@ const Routers = () => {
       setIsLoaded(false);
       const response = await axios
         .get(
-          `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
+          `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
         )
         .then(async (Fetched_Data) => {
+          // console.log(Fetched_Data);
           if (!Fetched_Data.data.msgError) {
+            const checkingAuth = await AsyncStorage.getItem("isAuth");
             const Fetched_TypeOf_Media =
               Fetched_Data.data.msg.MediaInfo.TypeOfMedia;
             if (
@@ -61,12 +63,19 @@ const Routers = () => {
             } else {
               setMediaFunction(Fetched_TypeOf_Media);
             }
-            return [Fetched_Data, "wolfkey", Fetched_TypeOf_Media];
+            return [Fetched_Data, checkingAuth, Fetched_TypeOf_Media];
+          } else {
+            setIsAuth(false);
+            setIsLoaded(true);
+            setProgress(1);
+            setTypeofMedia("-");
+            // throw new Error("user is not ok");
+            return ["user is not ok", "Waitwaitwait"];
           }
         })
         .then(async (result) => {
-          setIsAuth(true);
-          if (result[0].data.msg.MediaInfo.MediaUrl.length < 1) {
+          if (result[1] !== "wolfkey") {
+            setIsAuth(false);
             setProgress(1);
             setState({
               FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
@@ -78,66 +87,88 @@ const Routers = () => {
             setIsLoaded(true);
             return "VideoPlayer";
           } else {
-            if (FreeSpace > megabytesToBytes(500)) {
-              const FetchedUrl = result[0].data.msg.MediaInfo;
-              console.log("FetchedUrl", FetchedUrl);
-              const wholeResult = [];
+            setIsAuth(true);
+            if (
+              result[0].data.msg.MediaInfo.MediaUrl[0] === undefined ||
+              result[0].data.msg.MediaInfo.MediaUrl[0] === ""
+            ) {
+              // console.log("user is not wolfkey");
+              setProgress(1);
+              setState({
+                FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
+                wholeResult: [
+                  "https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4",
+                ],
+              });
+              setTypeofMedia("VideoPlayer");
+              setIsLoaded(true);
+              return "VideoPlayer";
+            } else {
+              if (FreeSpace > megabytesToBytes(500)) {
+                const FetchedUrl = result[0].data.msg.MediaInfo;
+                const wholeResult = [];
 
-              if (
-                FetchedUrl.TypeOfMedia !== "youtube" &&
-                FetchedUrl.TypeOfMedia !== "website"
-              ) {
-                const Urls_length = FetchedUrl.MediaUrl.length;
-                console.log("Urls_length", Urls_length);
-                for (let i = 0; i < Urls_length; i++) {
-                  const cachingMedia = await CacheMedia_copy(
-                    FetchedUrl.MediaUrl[i][`${result[2]}Url`],
-                    setProgress,
-                    async (uri) => {
-                      setVideoName(uri.split("/").pop());
-                      wholeResult.push({
-                        uri: uri,
-                        mediaSchedule: FetchedUrl.MediaUrl[i],
-                      });
-                      const StringUri = wholeResult.toString();
-                      setState({
-                        FetchedUrl: FetchedUrl,
-                        wholeResult: wholeResult,
-                      });
-                      const storingURI = await AsyncStorage.setItem(
-                        "StoredURI",
-                        `${StringUri}?TypeOfMedia=${FetchedUrl.TypeOfMedia}&Orientation=${FetchedUrl.Orientation}&Audio=${FetchedUrl.Audio}`
-                      );
-                      if (wholeResult.length === Urls_length) {
-                        setIsLoaded(true);
+                if (
+                  FetchedUrl.TypeOfMedia !== "youtube" &&
+                  FetchedUrl.TypeOfMedia !== "website"
+                ) {
+                  const Urls_length = FetchedUrl.MediaUrl.length;
+                  for (let i = 0; i < Urls_length; i++) {
+                    console.log("beforeThen");
+                    const cachingMedia = await CacheMedia_copy(
+                      FetchedUrl.MediaUrl[i],
+                      setProgress,
+                      async (uri) => {
+                        setVideoName(uri.split("/").pop());
+                        wholeResult.push(uri);
+                        const StringUri = wholeResult.toString();
+                        setState({
+                          FetchedUrl: FetchedUrl,
+                          wholeResult: wholeResult,
+                        });
+                        const storingURI = await AsyncStorage.setItem(
+                          "StoredURI",
+                          `${StringUri}?TypeOfMedia=${FetchedUrl.TypeOfMedia}&Orientation=${FetchedUrl.Orientation}&Audio=${FetchedUrl.Audio}`
+                        );
+                        if (wholeResult.length === Urls_length) {
+                          setIsLoaded(true);
+                        }
                       }
-                    }
-                  );
+                    );
+                  }
+                } else {
+                  wholeResult.push(FetchedUrl.MediaUrl[0]);
+                  setState({
+                    FetchedUrl: FetchedUrl,
+                    wholeResult: wholeResult,
+                  });
+                  setProgress(1);
+                  setIsLoaded(true);
                 }
               } else {
-                wholeResult.push({uri:FetchedUrl.MediaUrl[0]});
-                setState({
-                  FetchedUrl: FetchedUrl,
-                  wholeResult: wholeResult,
-                });
-                setProgress(1);
-                setIsLoaded(true);
+                cleanMemory(setVideoName, () => APP());
               }
-            } else {
-              cleanMemory(setVideoName, () => APP());
             }
           }
         })
+        // .then(() => {
+        //   console.log("then");
+        //   setTimeout(() => {
+        //     console.log("settimeout");
+        //   setIsLoaded(true);
+        //   }, 3000);
+        //   return 0;
+        // })
         .catch(async (error) => {
           console.error("error from Catch", error);
           No_Network_AsyncStorage();
         });
     };
-
     const No_Network_AsyncStorage = async () => {
       const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
         (result) => {
           setIsAuth(true);
+          console.log("result", result);
           setIsLoaded(true);
           setProgress(1);
           if (result !== null && result !== "" && result !== undefined) {
@@ -155,8 +186,10 @@ const Routers = () => {
             });
             setMediaFunction(params.TypeOfMedia);
           } else {
+            console.log("result is null");
             setMediaFunction("Home");
             setState({ "": "" });
+            // setIsAuth(false);
           }
         }
       );
@@ -165,31 +198,10 @@ const Routers = () => {
       const isConnected = await Network.getNetworkStateAsync()
         .then(async (status) => {
           if (status.isConnected) {
-            const checkingAuth = await AsyncStorage.getItem("isAuth");
-            if (checkingAuth !== "wolfkey") {
-              const response = await axios
-                .get(
-                  `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
-                )
-                .then(async (result) => {
-                  if (!result.data.msgError) {
-                    await AsyncStorage.setItem("isAuth", "wolfkey");
-                    APP();
-                  } else {
-                    setIsAuth(false);
-                    setProgress(1);
-                    setState({
-                      FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
-                      wholeResult: [""],
-                    });
-                    setTypeofMedia("VideoPlayer");
-                    setIsLoaded(true);
-                  }
-                });
-            } else {
-              APP();
-            }
+            
+            APP();
           } else {
+            // alert("You are not connected to the internet");
             No_Network_AsyncStorage();
           }
         })
@@ -238,6 +250,7 @@ const Routers = () => {
           // initialRouteName={"WebHtml"}
           initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
         >
+          {/* {console.log("TypeofMedia", TypeofMedia)} */}
           <Stack.Screen
             name="QrCodePage"
             component={QrCodePage}

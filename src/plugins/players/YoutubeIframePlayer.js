@@ -19,7 +19,6 @@ const YoutubeIframePlayer = ({ wholeResult, FetchedUrl }) => {
     //   youtube_url = youtube_url.replace("?list=", "&list=");
     // }
     // const Result_yt = yt(youtube_url);
-    // console.log(Result_yt);
     // // if (Result_yt[0] == "video") {
     // //   let result = await WebBrowser.openBrowserAsync(
     // //     `https://youtube.com/embed/${Result_yt[1]}?rel=0&autoplay=1&controls=0&showinfo=0&playlist=${Result_yt[1]}&loop=1`

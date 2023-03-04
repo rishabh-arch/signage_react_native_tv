@@ -75,14 +75,9 @@ const megabytesToBytes = (megabytes) => megabytes * 1000000.0;
 const cleanMemory = async (totalClean) => {
   const memoryName = "TotalSavedMemory3";
   const TotalSavedMemory = await AsyncStorage.getItem(memoryName);
-  console.log("TotalSavedMemory ", TotalSavedMemory);
   if (TotalSavedMemory !== null) {
     const TotalSavedMemoryInArray = await JSON.parse(TotalSavedMemory);
     const TotalSavedMemoryInArrayLength = TotalSavedMemoryInArray.length;
-    console.log(
-      "TotalSavedMemoryInArrayLength ",
-      TotalSavedMemoryInArrayLength
-    );
     for (let i = 0; i < TotalSavedMemoryInArrayLength; i++) {
       const deletePrevious = await FileSystem.deleteAsync(
         TotalSavedMemoryInArray[i],

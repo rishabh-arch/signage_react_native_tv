@@ -15,3 +15,6 @@
 [https://coolors.co/f0be30](coolors)
 
 [https://technastic.com/adb-shell-commands-list/](adb shell commands list)
+
+[https://shop.byprogrammers.com/project/e-commerce-app-expo](e-commerce-app-expo)
+

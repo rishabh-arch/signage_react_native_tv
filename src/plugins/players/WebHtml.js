@@ -17,11 +17,18 @@ const WebHtml = ({ wholeResult, FetchedUrl }) => {
   const [loaded, setLoaded] = useState(false);
   const webviewRef = useRef(null);
   useEffect(() => {
-    if (wholeResult !== undefined && FetchedUrl !== undefined) {
-      FetchedUrl.touch=="false" ? setTouch(3) : setTouch(0);
+    if (
+      wholeResult !== undefined &&
+      FetchedUrl !== undefined &&
+      FetchedUrl !== null &&
+      FetchedUrl !== "" &&
+      FetchedUrl !== []
+    ) {
+      FetchedUrl.touch == "false" ? setTouch(3) : setTouch(0);
       setLoaded(true);
     }
   }, [wholeResult, FetchedUrl]);
+
   return (
     <>
       {loaded && (
@@ -55,7 +62,6 @@ const WebHtml = ({ wholeResult, FetchedUrl }) => {
               onPress={() => {
                 webviewRef.current.goBack();
                 // navigation.navigate("Home");
-
               }}
             >
               <Ionicons
@@ -81,14 +87,22 @@ const WebHtml = ({ wholeResult, FetchedUrl }) => {
               domStorageEnabled={true}
               onFileDownload={false}
               cacheEnabled
+              injectedJavaScript={`var links = document.getElementsByTagName('a');
+
+              for (var i=links.length-1; i>=0; i--) {
+                links[i].removeAttribute("target");
+              }`}
               source={{
-                uri: "https://medium.com/uxness/best-ux-ui-inspiration-sites-platform-for-designers-7acecd203dca",
+                uri: wholeResult[0],
               }}
-              onShouldStartLoadWithRequest={(request) => {
-                if (request.url.includes("https")) {
-                  alert("Prevent loading");
-                } else return true;
-              }}
+              // onShouldStartLoadWithRequest={(request) => {
+
+              //   if (request.url.includes("https")) {
+              //     alert("Prevent loading");
+              //     return false;
+              //   }
+              //   return true;
+              // }}
               ref={webviewRef}
               pullToRefreshEnabled={true}
             />
