@@ -159,50 +159,48 @@ const WebVideoPlayer = ({ wholeResult, FetchedUrl }) => {
               video.loop = loop;
               video.play();
             }
-            function playCurrentVideo(){
-              currentIndex = (currentIndex + 1) % videoSource.length;
-              const disableSchedule = videoSource[currentIndex].mediaSchedule.disableSchedule;
-              
-              if(disableSchedule=="false"){
-                const now = new Date();
-                  const fromDate = new Date(videoSource[currentIndex].mediaSchedule.fromDate);
-                  const toDate = new Date(videoSource[currentIndex].mediaSchedule.toDate);
-              if (now >= fromDate && now <= toDate) {
-                  video.src = videoSource[currentIndex].uri;
-                  video.play();
+            function playCurrentVideo() {
+              if (videoSource.length > 1) {
+                while (currentIndex < videoSource.length) {
+                  currentIndex = (currentIndex + 1) % videoSource.length;
+                  const { mediaSchedule } = videoSource[currentIndex]
+                  const disableSchedule = mediaSchedule.disableSchedule;
+                  if (disableSchedule === "false" && videoSource.length > 1) {
+                    const now = new Date();
+                    const fromDate = new Date(mediaSchedule.fromDate);
+                    const toDate = new Date(mediaSchedule.toDate);
+                    if (now >= fromDate && now <= toDate) {
+                      video.src = videoSource[currentIndex].uri;
+                      video.play();
+                      break;
+                    }
+                    else if (now < fromDate) {
+                      video.pause();
+                      continue;
+                    }
+                    else if (now > toDate) {
+                      videoSource.splice(currentIndex, 1);
+                      video.pause();
+                      continue;
+                    }
+                  }
+                  else {
+                    video.src = videoSource[currentIndex].uri;
+                    video.play();
+                    break;
+                  }
+                }
               }
               else {
-                if(now<fromDate)
-                {
-                  video.pause();
-                 playCurrentVideo();
-                 return;
+                if (videoSource.length <= 1) {
+                  document
+                    .getElementById("myVideo").removeEventListener("ended", playCurrentVideo, false);
+                  playVideo(videoSource[0].uri, true);
+                  return;
                 }
-
-                videoSource.splice(currentIndex, 1);
-                if(videoSource.length<=1){
-                  document
-                .getElementById("myVideo").removeEventListener("ended", playCurrentVideo, false);
-                playVideo(videoSource[0].uri, true);
-                return;
               }
-                video.pause();
-                 playCurrentVideo();
-                  }
-              }
-              else{
-                if(videoSource.length<=1){
-                  document
-                .getElementById("myVideo").removeEventListener("ended", playCurrentVideo, false);
-                playVideo(videoSource[0].uri, true);
-                return;
-              }
-                  video.src = videoSource[currentIndex].uri;
-                  video.play();
-              }
-              
-          }
-          
+            }
+            
             
 
           

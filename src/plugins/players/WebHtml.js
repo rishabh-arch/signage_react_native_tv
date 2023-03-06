@@ -12,7 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const WebHtml = ({ wholeResult, FetchedUrl }) => {
   const navigation = useNavigation();
-
+  // console.log("FetchedUrl", wholeResult);
   const [touch, setTouch] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const webviewRef = useRef(null);
@@ -93,7 +93,7 @@ const WebHtml = ({ wholeResult, FetchedUrl }) => {
                 links[i].removeAttribute("target");
               }`}
               source={{
-                uri: wholeResult[0],
+                uri: wholeResult[0].uri.website,
               }}
               // onShouldStartLoadWithRequest={(request) => {
 

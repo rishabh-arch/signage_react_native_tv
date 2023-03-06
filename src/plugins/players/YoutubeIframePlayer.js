@@ -6,37 +6,8 @@ import {
   TouchableOpacity,
   ImageBackground
 } from "react-native";
-import { useEffect, useState } from "react";
 import YoutubeIframe from "react-native-youtube-iframe";
-import yt from "../YoutubeRegex";
 const YoutubeIframePlayer = ({ wholeResult, FetchedUrl }) => {
-  // const [result, setResult] = useState(null);
-
-  // const _handlePressButtonAsync = async () => {
-    // var youtube_url = wholeResult[0];
-
-    // if (youtube_url.match("/?list=") !== null) {
-    //   youtube_url = youtube_url.replace("?list=", "&list=");
-    // }
-    // const Result_yt = yt(youtube_url);
-    // // if (Result_yt[0] == "video") {
-    // //   let result = await WebBrowser.openBrowserAsync(
-    // //     `https://youtube.com/embed/${Result_yt[1]}?rel=0&autoplay=1&controls=0&showinfo=0&playlist=${Result_yt[1]}&loop=1`
-    // //   );
-    // //   setResult(Result_yt[1]);
-    // // } else if (Result_yt[0] == "playlist") {
-    // //   let result = await WebBrowser.openBrowserAsync(
-    // //     `https://youtube.com/embed/videoseries?list=${Result_yt[2]}&loop=1&playsinline=1&autoplay=1&controls=0`
-    // //   );
-    // //   setResult(Result_yt[2]);
-    // // }
-
-    // setResult(wholeResult[0]);
-  // };
-
-  // useEffect(() => {
-  //   setResult(wholeResult[0]);
-  // }, []);
 
   const YoutubePlaylist = (PlayListID) => (
     <YoutubeIframe
@@ -76,7 +47,7 @@ const YoutubeIframePlayer = ({ wholeResult, FetchedUrl }) => {
 
       {wholeResult ? (
         <View style={styles.container2}>{wholeResult[0]!==null?
-          YoutubePlaylist(wholeResult[0]):
+          YoutubePlaylist(wholeResult[0].uri.youtube):
           <ImageBackground
           style={{
             width: Dimensions.get("window").width,

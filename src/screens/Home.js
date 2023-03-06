@@ -19,174 +19,208 @@ import * as IntentLauncher from "expo-intent-launcher";
 import { startActivityAsync, ActivityAction } from "expo-intent-launcher";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import * as Linking from 'expo-linking';
+import * as Linking from "expo-linking";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import * as Network from "expo-network";
+import { androidId } from "expo-application";
 
 function showToast(text) {
   ToastAndroid.show(text, ToastAndroid.SHORT);
 }
-
+var options = {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+};
 const handleLogout = async () => {
   const isConnected = await Network.getNetworkStateAsync()
-  .then((status) => {
-    if(status.isConnected)
-    return true
-    else
-    throw new Error("No Internet Connection");
-  })
-    
-// const response = await axios
-            // .get(
-            //   `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
-            // )
+    .then(async (status) => {
+      if (status.isConnected) {
+        const response = await axios
+          .get(
+            `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
+          )
+          .then(async (res) => {
+            const { msgError, msg } = res.data;
+            const { endDate } = msg;
+            if (!msgError) {
+              if (new Date(endDate) > new Date()) {
+                alert(
+                  `Can't Logout before ${new Date(endDate).toLocaleString(
+                    "en-US",
+                    options
+                  )} ,Please Contact Admin!`
+                );
+              }
+              else{
+                await AsyncStorage.removeItem("isAuth");
+                await AsyncStorage.removeItem("StoredURI");
+                alert("You are logged out");
+              }
+            }
+            else{
+              await AsyncStorage.removeItem("isAuth");
+              await AsyncStorage.removeItem("StoredURI");
+              alert("You are logged out");
+            }
+          });
+      } else alert("Please Connect to Wifi");
+    })
+    .catch((err) => {
+      alert("Please Connect to Wifi");
+    });
 
-  await AsyncStorage.removeItem("isAuth"); 
+  // const response = await axios
+  // .get(
+  //   `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
+  // )
+
+  await AsyncStorage.removeItem("isAuth");
   await AsyncStorage.removeItem("StoredURI");
-};  
+};
 const Home = () => {
   const navigation = useNavigation();
   return (
     <View
-    style={{
-      flex: 1,
-      flexDirection: "column",
-      justifyContent: "space-between",
-      backgroundColor: "#F5C000",
-    }}
+      style={{
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        backgroundColor: "#F5C000",
+      }}
     >
-
-    <View style={styles.container}>
-      <View style={styles.containerBox}>
-        <Text style={styles.header}>M E N U</Text>
+      <View style={styles.container}>
+        <View style={styles.containerBox}>
+          <Text style={styles.header}>M E N U</Text>
+        </View>
+        <ScrollView horizontal="true">
+          <TouchableOpacity
+            onPress={() => {
+              AsyncStorage.removeItem("StoredURI");
+              cleanMemory((cb) => showToast(cb));
+            }}
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="md-rocket"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Clean Memory
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="md-wifi"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Connect Wifi
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              IntentLauncher.startActivityAsync(ActivityAction.SETTINGS)
+            }
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="md-settings"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Open Device Settings
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="md-log-out"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Log Out
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL(
+                "http://play.google.com/store/apps/details?id=com.google.android.apps.maps"
+              );
+            }}
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="logo-google-playstore"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Update App
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("QrCodePage");
+            }}
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="qr-code"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                QR CODE
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+            <View>
+              <Text style={styles.item}>
+                <Ionicons
+                  name="arrow-back"
+                  size={25}
+                  style={styles.Icons}
+                  color="white"
+                />
+                {"  "}
+                Go Back
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
-      <ScrollView horizontal="true">
-        <TouchableOpacity
-          onPress={() => {
-            AsyncStorage.removeItem("StoredURI");
-            cleanMemory((cb) => showToast(cb));
-          }}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="md-rocket"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-              Clean Memory
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => startActivityAsync(ActivityAction.WIFI_SETTINGS)}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="md-wifi"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-              Connect Wifi
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            IntentLauncher.startActivityAsync(ActivityAction.SETTINGS)
-          }
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="md-settings"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-              Open Device Settings
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleLogout}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="md-log-out"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-              Log Out
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            Linking.openURL('http://play.google.com/store/apps/details?id=com.google.android.apps.maps');
-          }}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="logo-google-playstore"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-              Update App
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("QrCodePage");
-          }}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="qr-code"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-             QR CODE
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <View>
-            <Text style={styles.item}>
-              <Ionicons
-                name="arrow-back"
-                size={25}
-                style={styles.Icons}
-                color="white"
-              />
-              {"  "}
-             Go Back
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
     </View>
   );
 };
@@ -242,9 +276,8 @@ const styles = StyleSheet.create({
     // margin: 10,
     alignSelf: "center",
     backgroundColor: "#23211E",
-    transform: [{ scale: 0.9 }, { perspective: 1}],
+    transform: [{ scale: 0.9 }, { perspective: 1 }],
     // borderRadius: 25,
-
   },
   containerBox: {
     flex: 1,

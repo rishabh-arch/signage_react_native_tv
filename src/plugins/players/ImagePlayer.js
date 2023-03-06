@@ -1,30 +1,25 @@
 import {
   StyleSheet,
-  Text,
   View,
   Dimensions,
   TouchableOpacity,
   ImageBackground,
-  Image,
 } from "react-native";
-import React from "react";
-import { Video } from "expo-av";
+import React, { useEffect } from "react";
 import * as Progress from "react-native-progress";
-// import Home from "../../screens/Home";
-// import ScrollingBackground from "react-native-scrolling-images";
 import { useNavigation } from "@react-navigation/native";
 
-// const { height, width } = useWindowDimensions();
+let currentIndex = 0;
+
 const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
-  const [status, setStatus] = React.useState({});
   const [index, setIndex] = React.useState(0);
-  const [state, setState] = React.useState({ wholeResult: "" });
-  const [isLoaded, setLoaded] = React.useState(true);
   const [progress, setProgress] = React.useState(false);
   const [Rotation, setRotation] = React.useState("0deg");
   React.useEffect(() => {
     if (wholeResult !== undefined) {
+      console.log("wholeResult", wholeResult.length);
       setProgress(true);
+
       if (FetchedUrl.Orientation == "Landscape") {
         setRotation("0deg");
       } else {
@@ -33,9 +28,45 @@ const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
     }
   }, []);
 
-  const delay = 15000;
+  const delay = FetchedUrl.delay <= 5000 ? 5000 : FetchedUrl.delay;
   const navigation = useNavigation();
-
+  const play_images_on_loop = () => {
+    while (currentIndex < wholeResult.length && wholeResult.length > 1) {
+      currentIndex = (currentIndex + 1) % wholeResult.length;
+      const { mediaSchedule } = wholeResult[currentIndex];
+      const { disableSchedule } = mediaSchedule;
+      if (disableSchedule == "false") {
+        const now = new Date();
+        const fromDate = new Date(mediaSchedule.fromDate);
+        const toDate = new Date(mediaSchedule.toDate);
+        if (fromDate <= now && toDate >= now) {
+          setIndex(currentIndex);
+          break;
+        } else if (fromDate > now) {
+          continue;
+        } else if (toDate < now) {
+          wholeResult.splice(currentIndex, 1);
+          continue;
+        } else {
+          setIndex(0);
+          break;
+        }
+      } else {
+        setIndex(currentIndex);
+        break;
+      }
+    }
+    return;
+  };
+  useEffect(() => {
+    if (wholeResult.length == 1) {
+      return;
+    }
+    const t = setInterval(() => {
+      play_images_on_loop();
+    }, delay);
+    return () => clearInterval(t);
+  }, [index]);
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -49,18 +80,9 @@ const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
         wholeResult[index] !== undefined ? (
           <ImageBackground
             fadeDuration={0}
+            progressiveRenderingEnabled={true}
             source={{
-              uri:
-                wholeResult.length == 1 ? wholeResult[0] : wholeResult[index],
-            }}
-            onLoadEnd={() => {
-              setTimeout(
-                () =>
-                  setIndex((prevIndex) =>
-                    prevIndex === wholeResult.length - 1 ? 0 : prevIndex + 1
-                  ),
-                delay
-              );
+              uri: wholeResult[index].uri,
             }}
             resizeMode="contain"
             style={{
@@ -69,6 +91,7 @@ const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
               transform: [{ rotate: Rotation }],
               justifyContent: "center",
             }}
+            onLoadEnd={() => {}}
           />
         ) : (
           <Progress.Circle
@@ -87,7 +110,6 @@ const ImagePlayer = ({ wholeResult, FetchedUrl }) => {
 export default ImagePlayer;
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: "#000",
@@ -99,4 +121,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#0B7483",
   },
 });
-

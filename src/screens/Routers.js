@@ -9,7 +9,6 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./Home";
 import ErrorPage from "./ErrorPage";
-import { AuthContext } from "../components/context/AuthContext";
 import * as Progress from "react-native-progress";
 import { androidId } from "expo-application";
 import axios from "axios";
@@ -34,6 +33,7 @@ const Routers = () => {
   const [isAuth, setIsAuth] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const [VideoName, setVideoName] = React.useState("Loading... Please Wait");
+  const [mediaInformation, setMediaInformation] = React.useState({});
   // const [downloaded, setDownloaded] = React.useState(false);
 
   //Dear Developer, Please Understand Our Situation, Don't Steal Our Code and don't make a crack version of our app
@@ -52,6 +52,7 @@ const Routers = () => {
           if (!Fetched_Data.data.msgError) {
             const Fetched_TypeOf_Media =
               Fetched_Data.data.msg.MediaInfo.TypeOfMedia;
+            setMediaInformation(Fetched_Data.data.msg.MediaInfo);
             if (
               Fetched_TypeOf_Media === "video" &&
               Fetched_Data.data.msg.MediaInfo.MediaUrl.length > 1
@@ -71,7 +72,14 @@ const Routers = () => {
             setState({
               FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
               wholeResult: [
-                "https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4",
+                {
+                  mediaSchedule: {
+                    disableSchedule: "true",
+                    fromDate: "",
+                    toDate: "",
+                  },
+                  uri: "https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4",
+                },
               ],
             });
             setTypeofMedia("VideoPlayer");
@@ -113,7 +121,7 @@ const Routers = () => {
                   );
                 }
               } else {
-                wholeResult.push({uri:FetchedUrl.MediaUrl[0]});
+                wholeResult.push({ uri: FetchedUrl.MediaUrl[0] });
                 setState({
                   FetchedUrl: FetchedUrl,
                   wholeResult: wholeResult,
