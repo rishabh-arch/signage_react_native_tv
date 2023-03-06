@@ -50,6 +50,7 @@ const Routers = () => {
         )
         .then(async (Fetched_Data) => {
           if (!Fetched_Data.data.msgError) {
+            AsyncStorage.setItem("endDate", Fetched_Data.data.msg.endDate);
             const Fetched_TypeOf_Media =
               Fetched_Data.data.msg.MediaInfo.TypeOfMedia;
             setMediaInformation(Fetched_Data.data.msg.MediaInfo);
@@ -63,6 +64,9 @@ const Routers = () => {
               setMediaFunction(Fetched_TypeOf_Media);
             }
             return [Fetched_Data, "wolfkey", Fetched_TypeOf_Media];
+          } else {
+            AsyncStorage.setItem("endDate", "false");
+            throw new Error("No Data Found");
           }
         })
         .then(async (result) => {
@@ -105,7 +109,7 @@ const Routers = () => {
                         uri: uri,
                         mediaSchedule: FetchedUrl.MediaUrl[i],
                       });
-                      const StringUri = wholeResult.toString();
+                      const StringUri = JSON.stringify(wholeResult);
                       setState({
                         FetchedUrl: FetchedUrl,
                         wholeResult: wholeResult,
@@ -136,10 +140,25 @@ const Routers = () => {
         })
         .catch(async (error) => {
           console.error("error from Catch", error);
-          No_Network_AsyncStorage();
+          checkEndDate();
         });
     };
 
+    // check endDate from AsyncStorage and compare with current date
+    const checkEndDate = async () => {
+      const endDate = await AsyncStorage.getItem("endDate");
+      const currentDate = new Date();
+      const endDateFromStorage = new Date(endDate);
+      if (currentDate > endDateFromStorage || endDate === "false") {
+        console.log("Hi I am here now under checkEndDate if condition");
+        setIsAuth(true);
+        setMediaFunction("Expired");
+        setIsLoaded(true);
+        setProgress(1);
+      } else {
+        No_Network_AsyncStorage();
+      }
+    };
     const No_Network_AsyncStorage = async () => {
       const fetchedURI = await AsyncStorage.getItem("StoredURI").then(
         (result) => {
@@ -154,7 +173,8 @@ const Routers = () => {
             while ((match = regex.exec(result))) {
               params[match[1]] = match[2];
             }
-            const wholeResult = splittedResult[0].split(",");
+
+            const wholeResult = JSON.parse(splittedResult[0].split(","));
             setState({
               FetchedUrl: params,
               wholeResult: wholeResult,
@@ -168,59 +188,65 @@ const Routers = () => {
       );
     };
     const checkConnectivity = async () => {
-      const isConnected = await Network.getNetworkStateAsync()
+      await Network.getNetworkStateAsync()
         .then(async (status) => {
           if (status.isConnected) {
-            const checkingAuth = await AsyncStorage.getItem("isAuth");
-            if (checkingAuth !== "wolfkey") {
-              const response = await axios
-                .get(
-                  `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
-                )
-                .then(async (result) => {
-                  if (!result.data.msgError) {
-                    await AsyncStorage.setItem("isAuth", "wolfkey");
-                    APP();
-                  } else {
-                    setIsAuth(false);
-                    setProgress(1);
-                    setState({
-                      FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
-                      wholeResult: [""],
-                    });
-                    setTypeofMedia("VideoPlayer");
-                    setIsLoaded(true);
-                  }
-                });
-            } else {
+            return true;
+          } else {
+            throw new Error("No Internet Connection");
+          }
+        })
+        .then(async () => {
+          const checkingAuth = await AsyncStorage.getItem("isAuth");
+          if (checkingAuth !== "wolfkey") {
+            const response = await axios.get(
+              `http://192.168.0.200:5000/api/Signage/NativeTV/checkAuthorization?UID=${androidId}`
+            );
+            return response;
+          } else {
+            return true;
+          }
+        })
+        .then(async (result) => {
+          if (result !== true) {
+            if (!result.data.msgError) {
+              await AsyncStorage.setItem("isAuth", "wolfkey");
               APP();
+            } else {
+              setIsAuth(false);
+              setProgress(1);
+              setState({
+                FetchedUrl: { Orientation: "Landscape", Audio: "Mute" },
+                wholeResult: [""],
+              });
+              setTypeofMedia("VideoPlayer");
+              setIsLoaded(true);
             }
           } else {
-            No_Network_AsyncStorage();
+            APP();
           }
         })
         .catch(async (error) => {
-          No_Network_AsyncStorage();
+          checkEndDate();
         });
     };
+
     checkConnectivity();
   }, [0]);
 
-  const setMediaFunction = (typeResult) => {
-    if (typeResult === "image") {
-      setTypeofMedia("ImagePlayer");
-    } else if (typeResult === "video") {
-      setTypeofMedia("VideoPlayer");
-    } else if (typeResult === "multi_video") {
-      setTypeofMedia("WebVideoPlayer");
-    } else if (typeResult === "Home") {
-      setTypeofMedia("Home");
-    } else if (typeResult === "website") {
-      setTypeofMedia("WebHtml");
-    } else {
-      setTypeofMedia("YoutubeIframePlayer");
-    }
+  const mediaTypeMap = {
+    image: "ImagePlayer",
+    video: "VideoPlayer",
+    multi_video: "WebVideoPlayer",
+    Home: "Home",
+    website: "WebHtml",
+    youtube: "YoutubeIframePlayer",
+    Expired: "ErrorPage",
   };
+
+  const setMediaFunction = (typeResult) =>
+    setTypeofMedia(mediaTypeMap[typeResult]);
+
   const Stack = createNativeStackNavigator();
   const config = {
     animation: "spring",
@@ -244,6 +270,7 @@ const Routers = () => {
           // initialRouteName={"WebHtml"}
           initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
         >
+            {console.log(TypeofMedia)}
           <Stack.Screen
             name="QrCodePage"
             component={QrCodePage}
@@ -277,6 +304,7 @@ const Routers = () => {
             component={Home}
             options={{ headerShown: false }}
           />
+
           <Stack.Screen
             name="ErrorPage"
             component={ErrorPage}

@@ -9,22 +9,39 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const ErrorPage = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <Pressable
-        onPressIn={() => {
+      <Text style={styles.signup}>
+        <Icon name="exclamation-triangle" size={100} color="#fff" />
+        <Icon name="wifi" size={100} color="#fff" />
+      </Text>
 
-          alert("Restart the app to login again");
+      <Text style={styles.signup}>
+        Oops! May be Your Subscription is End or If it is not then Please
+        Connect Wifi and Restart the Device
+      </Text>
+      <Pressable
+        onPress={() => {
+          navigation.navigate("Home");
         }}
+        style={styles.Home_Button}
       >
-        <Text style={styles.signup}>
-          <Icon name="exclamation-triangle" size={100} color="#fff" />
+        <Text
+          style={{
+            color: "#ef9b1c",
+            fontSize: Dimensions.get("window").width / 40,
+            fontWeight: "bold",
+          }}
+        >
+          <Text style={styles.signup}>
+            <Icon name="home" size={50} color="#ef9b1c" />
+          </Text>
+          Click here to Navigate to Home Page
         </Text>
-        <Text style={styles.signup}>
-            Oops! May be Our server is can't able to fetch your Device. Please try again later. 
-            </Text>
       </Pressable>
     </View>
   );
@@ -35,7 +52,7 @@ export default ErrorPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#B00404",
+    backgroundColor: "#000",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
