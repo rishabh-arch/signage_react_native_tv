@@ -49,6 +49,7 @@ const Routers = () => {
           `http://192.168.0.200:5000/api/Signage/NativeTV/MediaQuery?UID=${androidId}`
         )
         .then(async (Fetched_Data) => {
+          console.log("Fetched_Data", Fetched_Data.data.msg);
           if (!Fetched_Data.data.msgError) {
             AsyncStorage.setItem("endDate", Fetched_Data.data.msg.endDate);
             const Fetched_TypeOf_Media =
@@ -64,8 +65,11 @@ const Routers = () => {
               setMediaFunction(Fetched_TypeOf_Media);
             }
             return [Fetched_Data, "wolfkey", Fetched_TypeOf_Media];
-          } else {
+          } else if (Fetched_Data.data.msg === "Device is Expired") {
             AsyncStorage.setItem("endDate", "false");
+            throw new Error("No Data Found");
+          } else {
+            AsyncStorage.setItem("endDate", "true");
             throw new Error("No Data Found");
           }
         })
@@ -155,6 +159,14 @@ const Routers = () => {
         setMediaFunction("Expired");
         setIsLoaded(true);
         setProgress(1);
+      } else if (endDate === "true") {
+        setIsAuth(false);
+        console.log("Hi I am here now under checkEndDate else if condition");
+        setIsLoaded(true);
+        setProgress(1);
+        setState({ "": "" });
+        setMediaFunction("Expired");
+        
       } else {
         No_Network_AsyncStorage();
       }
@@ -270,7 +282,6 @@ const Routers = () => {
           // initialRouteName={"WebHtml"}
           initialRouteName={!isAuth ? "QrCodePage" : TypeofMedia}
         >
-            {console.log(TypeofMedia)}
           <Stack.Screen
             name="QrCodePage"
             component={QrCodePage}
